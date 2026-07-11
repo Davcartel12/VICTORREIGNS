@@ -1665,7 +1665,7 @@
       width: 50%;
       background: linear-gradient(135deg, #1a1712 0%, #0b0906 100%);
       will-change: transform;
-      transition: transform 1.35s cubic-bezier(.7, 0, .2, 1);
+      transition: transform 2.4s cubic-bezier(.65, 0, .25, 1);
     }
 
     .vr-door-left {
@@ -1712,7 +1712,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      transition: opacity .5s ease, transform .5s ease;
+      transition: opacity .8s ease, transform .8s ease;
     }
 
     .vr-door-logo {
@@ -1787,8 +1787,8 @@
       document.body.classList.add('vr-locked');
 
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var HOLD = reduce ? 200 : 750;   // pause with doors shut
-      var SLIDE = reduce ? 50 : 1450; // door slide duration + buffer
+      var HOLD = reduce ? 200 : 1200;  // pause with doors shut
+      var SLIDE = reduce ? 50 : 2550; // door slide duration + buffer
 
       function open() {
         doors.classList.add('vr-open');
