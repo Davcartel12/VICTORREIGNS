@@ -201,6 +201,18 @@ nav a:hover { color: var(--ink); }
 .pd-name { font-size: clamp(1.7rem, 4vw, 2.5rem); font-weight: 800; color: var(--ink); letter-spacing: -.02em; line-height: 1.1; }
 .pd-price { font-size: 1.7rem; font-weight: 800; color: var(--ink); }
 .pd-description { color: var(--text-light); line-height: 1.8; }
+/* ---------- COLOUR SWATCHES ---------- */
+.pd-colors { margin: .2rem 0 .2rem; }
+.pd-colors-label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .6rem; }
+.pd-colors-label b { color: var(--ink); font-weight: 700; text-transform: none; letter-spacing: 0; }
+.pd-swatches { display: flex; gap: .6rem; flex-wrap: wrap; }
+.pd-swatch { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line-2); cursor: pointer; padding: 0; position: relative; transition: transform .14s, border-color .14s, box-shadow .14s; }
+.pd-swatch:hover { transform: scale(1.08); }
+.pd-swatch.active { border-color: var(--gold-deep); box-shadow: 0 0 0 3px rgba(201,168,76,.22); }
+.pd-swatch.active::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #fff; }
+/* colour chip shown on cart lines */
+.cart-item-color { display: inline-flex; align-items: center; gap: .3rem; font-size: .76rem; color: var(--muted); margin-top: .2rem; }
+.cart-item-color i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--line-2); display: inline-block; }
 .pd-buy { display: flex; gap: .9rem; align-items: center; flex-wrap: wrap; margin-top: .4rem; }
 .qty-selector { display: inline-flex; align-items: center; border: 1.5px solid var(--line-2); border-radius: var(--pill); overflow: hidden; }
 .qty-btn { width: 42px; height: 44px; background: #fff; border: none; font-size: 1.2rem; color: var(--ink); cursor: pointer; transition: background .15s; }
@@ -1138,16 +1150,23 @@ body.vr-locked { overflow: hidden; }
   function cartCount() { return getCart().reduce((n, i) => n + (i.quantity || 0), 0); }
   function cartTotal() { return getCart().reduce((s, i) => s + i.price * i.quantity, 0); }
   function updateCartBadge() { const n = cartCount(); $$('.cart-count').forEach(el => { el.textContent = n; }); }
+  // A product in two different colours is two different cart lines.
+  function cartLineKey(i) { return i.id + '::' + (i.colorKey || ''); }
   function addToCart(p, qty = 1) {
     const cart = getCart();
-    const ex = cart.find(i => i.id === p.id);
+    const key = p.id + '::' + (p.colorKey || '');
+    const ex = cart.find(i => cartLineKey(i) === key);
     if (ex) ex.quantity += qty;
-    else cart.push({ id: p.id, name: p.name, price: Number(p.price) || 0, imageUrl: p.imageUrl || '', category: p.category || '', quantity: qty });
+    else cart.push({
+      id: p.id, name: p.name, price: Number(p.price) || 0,
+      imageUrl: p.imageUrl || '', category: p.category || '', quantity: qty,
+      color: p.color || '', colorKey: p.colorKey || '', colorHex: p.colorHex || ''
+    });
     saveCart(cart);
   }
   function buyNow(p) { addToCart(p, 1); location.hash = '#/checkout'; }
-  function setQty(id, qty) { let c = getCart(); if (qty <= 0) c = c.filter(i => i.id !== id); else { const it = c.find(i => i.id === id); if (it) it.quantity = qty; } saveCart(c); }
-  function removeFromCart(id) { saveCart(getCart().filter(i => i.id !== id)); }
+  function setQty(key, qty) { let c = getCart(); if (qty <= 0) c = c.filter(i => cartLineKey(i) !== key); else { const it = c.find(i => cartLineKey(i) === key); if (it) it.quantity = qty; } saveCart(c); }
+  function removeFromCart(key) { saveCart(getCart().filter(i => cartLineKey(i) !== key)); }
 
   /* ---------- toast ---------- */
   let toastTimer;
@@ -1494,14 +1513,24 @@ body.vr-locked { overflow: hidden; }
       const p = await fetchProduct(id);
       if (!p) { wrap.innerHTML = `<p class="grid-message">This product is no longer available. <a href="shop.html">Back to shop</a>.</p>`; return; }
       document.title = `${p.name} - VictorReigns Empire`;
+      const colors = Array.isArray(p.colors) ? p.colors.filter(c => c && c.imageUrl) : [];
+      const swatchHtml = colors.length ? `
+          <div class="pd-colors">
+            <div class="pd-colors-label">Colour: <b id="pd-color-name">${esc(colors[0].name)}</b></div>
+            <div class="pd-swatches" id="pd-swatches">
+              ${colors.map((c, i) => `<button type="button" class="pd-swatch${i === 0 ? ' active' : ''}" data-i="${i}" style="background:${attr(c.hex || '#ccc')}" title="${attr(c.name)}" aria-label="${attr(c.name)}"></button>`).join('')}
+            </div>
+          </div>` : '';
+
       wrap.innerHTML = `
-        <div class="pd-gallery"><img src="${attr(p.imageUrl) || PLACEHOLDER}" alt="${attr(p.name)}" onerror="window.__vrImg(this)"></div>
+        <div class="pd-gallery"><img id="pd-image" src="${attr(colors.length ? colors[0].imageUrl : p.imageUrl) || PLACEHOLDER}" alt="${attr(p.name)}" onerror="window.__vrImg(this)"></div>
         <div class="pd-info">
           <a class="pd-back" href="shop.html">← Back to shop</a>
           <span class="pd-cat">${esc(catLabel(p.category))}</span>
           <h1 class="pd-name">${esc(p.name)}</h1>
           <div class="pd-price">${fmt(p.price)}</div>
           ${p.description ? `<p class="pd-description">${esc(p.description)}</p>` : ''}
+          ${swatchHtml}
           <div class="pd-buy">
             <div class="qty-selector">
               <button type="button" class="qty-btn" data-step="-1">−</button>
@@ -1512,11 +1541,31 @@ body.vr-locked { overflow: hidden; }
             <button class="btn btn-solid btn-lg" id="pd-buy">Buy Now</button>
           </div>
         </div>`;
+
+      // Colour selection → swap the image
+      let picked = colors.length ? colors[0] : null;
+      if (colors.length) {
+        const imgEl = $('#pd-image', wrap);
+        const nameEl = $('#pd-color-name', wrap);
+        $$('.pd-swatch', wrap).forEach(btn => btn.addEventListener('click', () => {
+          const c = colors[Number(btn.dataset.i)];
+          if (!c) return;
+          picked = c;
+          imgEl.src = c.imageUrl;
+          nameEl.textContent = c.name;
+          $$('.pd-swatch', wrap).forEach(b => b.classList.toggle('active', b === btn));
+        }));
+      }
+      // What gets added to the cart (carries the chosen colour)
+      const forCart = () => picked
+        ? Object.assign({}, p, { imageUrl: picked.imageUrl, color: picked.name, colorHex: picked.hex || '', colorKey: picked.key || '' })
+        : p;
+
       let qty = 1;
       const qEl = $('#pd-qty', wrap);
       $$('.qty-btn', wrap).forEach(b => b.addEventListener('click', () => { qty = Math.max(1, qty + Number(b.dataset.step)); qEl.textContent = qty; }));
-      $('#pd-add', wrap).addEventListener('click', () => { addToCart(p, qty); toast(`${p.name} added to cart`); });
-      $('#pd-buy', wrap).addEventListener('click', () => buyNow(p));
+      $('#pd-add', wrap).addEventListener('click', () => { addToCart(forCart(), qty); toast(`${p.name} added to cart`); });
+      $('#pd-buy', wrap).addEventListener('click', () => buyNow(forCart()));
       loadRelated(p);
     } catch (e) { console.error(e); wrap.innerHTML = `<p class="grid-message error">Could not load this product. Refresh to try again.</p>`; }
   }
@@ -1543,11 +1592,12 @@ body.vr-locked { overflow: hidden; }
         summaryBox.innerHTML = ''; return;
       }
       itemsBox.innerHTML = cart.map(i => `
-        <div class="cart-item" data-id="${attr(i.id)}">
+        <div class="cart-item" data-id="${attr(i.id)}" data-key="${attr(cartLineKey(i))}">
           <img class="cart-item-image" src="${attr(i.imageUrl) || PLACEHOLDER}" alt="${attr(i.name)}" onerror="window.__vrImg(this)">
           <div class="cart-item-details">
             <h4 class="cart-item-name"><a href="product.html?id=${encodeURIComponent(i.id)}">${esc(i.name)}</a></h4>
             <div class="cart-item-cat">${esc(catLabel(i.category))}</div>
+            ${i.color ? `<div class="cart-item-color"><i style="background:${attr(i.colorHex || '#ccc')}"></i>${esc(i.color)}</div>` : ''}
             <div class="cart-item-price">${fmt(i.price)}</div>
           </div>
           <div class="cart-item-controls">
@@ -1565,18 +1615,18 @@ body.vr-locked { overflow: hidden; }
         <h2>Order Summary</h2>
         <div class="summary-row"><span>Items</span><span>${cartCount()}</span></div>
         <div class="summary-row"><span>Subtotal</span><span>${fmt(total)}</span></div>
-        <div class="summary-note">Delivery arranged on WhatsApp after checkout.</div>
+        <div class="summary-note">We'll contact you to arrange delivery after checkout.</div>
         <div class="summary-row summary-total"><span>Total</span><span>${fmt(total)}</span></div>
         <a href="checkout.html" class="btn btn-solid btn-block">Proceed to Checkout</a>
         <a href="shop.html" class="btn btn-outline btn-block">Continue Shopping</a>`;
     }
     wireOnce(itemsBox, 'cart-items', 'click', (e) => {
       const btn = e.target.closest('[data-act]'); if (!btn) return;
-      const row = e.target.closest('.cart-item'); const id = row && row.dataset.id; if (!id) return;
-      const item = getCart().find(i => i.id === id); const act = btn.dataset.act;
-      if (act === 'inc') setQty(id, (item ? item.quantity : 0) + 1);
-      else if (act === 'dec') setQty(id, (item ? item.quantity : 0) - 1);
-      else if (act === 'remove') removeFromCart(id);
+      const row = e.target.closest('.cart-item'); const key = row && row.dataset.key; if (!key) return;
+      const item = getCart().find(i => cartLineKey(i) === key); const act = btn.dataset.act;
+      if (act === 'inc') setQty(key, (item ? item.quantity : 0) + 1);
+      else if (act === 'dec') setQty(key, (item ? item.quantity : 0) - 1);
+      else if (act === 'remove') removeFromCart(key);
       if (window.__cartRender) window.__cartRender();
     });
     window.__cartRender = render;
@@ -1596,7 +1646,7 @@ body.vr-locked { overflow: hidden; }
           <h2>Order Summary</h2>
           <div class="order-items">${cart.map(i => `<div class="order-item"><span class="oi-name">${esc(i.name)} <span class="oi-qty">× ${i.quantity}</span></span><span class="oi-price">${fmt(i.price * i.quantity)}</span></div>`).join('')}</div>
           <div class="summary-row summary-total"><span>Total</span><span>${fmt(total)}</span></div>
-          <div class="summary-note">You'll confirm payment (Cash or Mobile Money) with us on WhatsApp.</div>`;
+          <div class="summary-note">Payment (Cash or Mobile Money) is confirmed when we contact you.</div>`;
       }
     }
     const totalField = $('#order-total'); if (totalField) totalField.value = cartTotal();
@@ -1605,12 +1655,36 @@ body.vr-locked { overflow: hidden; }
       const items = getCart(); if (!items.length) { toast('Your cart is empty.'); return; }
       const name = $('#name', form).value.trim(), phone = $('#phone', form).value.trim(), address = $('#address', form).value.trim();
       if (!name || !phone || !address) { toast('Please fill in all fields.'); return; }
-      const lines = items.map(i => `• ${i.name} × ${i.quantity} — ${fmt(i.price * i.quantity)}`).join('\n');
-      const text = `*New Order — VictorReigns Empire*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Delivery address:* ${address}\n\n*Items:*\n${lines}\n\n*Total: ${fmt(cartTotal())}*`;
-      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
-      localStorage.removeItem(CART_KEY); updateCartBadge();
-      if (summaryBox) summaryBox.innerHTML = `<h2>Order sent <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M4 20l5-13 8 8-13 5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 7l3-3M14 6l2-2M18 10l2-1M16 14l3 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></h2><p class="grid-message">Your order opened in WhatsApp — send it to us and we'll confirm delivery and payment. <a href="shop.html">Keep shopping</a>.</p>`;
-      const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
+      if (!window.db) { toast('Connection issue — please try again.'); return; }
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const btnOrig = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Placing order…'; }
+
+      let customer = null;
+      try { customer = JSON.parse(localStorage.getItem('vr_customer') || 'null'); } catch (err) {}
+
+      const order = {
+        name, phone, address,
+        accountEmail: (customer && customer.email) || '',
+        items: items.map(i => ({
+          id: i.id, name: i.name, price: i.price, quantity: i.quantity,
+          category: i.category || '', color: i.color || ''    // colour the customer chose
+        })),
+        total: cartTotal(),
+        status: 'new',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      window.db.collection('orders').add(order).then(() => {
+        localStorage.removeItem(CART_KEY); updateCartBadge();
+        if (summaryBox) summaryBox.innerHTML = `<h2>Order placed <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">Thank you! We've received your order and will contact you shortly to confirm delivery and payment. <a href="shop.html">Keep shopping</a>.</p>`;
+        const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
+      }).catch((err) => {
+        console.error(err);
+        toast('Could not place order. Please try again.');
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = btnOrig; }
+      });
     });
   }
 
