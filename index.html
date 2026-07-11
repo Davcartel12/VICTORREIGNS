@@ -1987,9 +1987,10 @@
         setTimeout(function () {
           var saved = getSavedCustomer();
           if (saved && saved.email) {
-            unlock();               // returning visitor — straight in
+            unlock();                       // returning visitor — straight in
+            ensureCustomerRecord(saved);    // make sure they're still in the admin list
           } else {
-            openDoors();            // new visitor — show the form
+            openDoors();                    // new visitor — show the form
           }
         }, reduce ? 150 : 900);
       }
@@ -1997,6 +1998,27 @@
       if (img && img.complete) begin();
       else if (img) { img.addEventListener('load', begin); img.addEventListener('error', begin); setTimeout(begin, 1200); }
       else begin();
+
+      // Silently (re)write a returning customer's record so they always appear in admin,
+      // even if it was never saved or got removed. Never blocks the user.
+      function ensureCustomerRecord(cust) {
+        if (!cust || !cust.email) return;
+        var tries = 0;
+        (function waitDb() {
+          if (window.db) {
+            var ref = window.db.collection('users').doc(cust.email.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+            ref.get().then(function (snap) {
+              var data = { name: cust.name || '', email: cust.email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
+              if (!snap.exists) { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
+              return ref.set(data, { merge: true });
+            }).catch(function () { });
+            return;
+          }
+          if (tries >= 6000) return;
+          tries += 200;
+          setTimeout(waitDb, 200);
+        })();
+      }
 
       // ── The email + name form ──
       var form = document.getElementById('vr-auth-form');
@@ -2020,29 +2042,45 @@
         var original = btn.textContent;
         btn.textContent = 'Entering…';
 
-        // Save locally so this device skips the gate next time
         var customer = { name: name, email: email };
-        try { localStorage.setItem(STORE_KEY, JSON.stringify(customer)); } catch (err) { }
 
-        // Save / update the customer record in Firestore (keyed by email).
-        // "merge + set createdAt only if new" — keep original join date.
-        function finish() { unlock(); }
-
-        if (window.db) {
-          var ref = window.db.collection('users').doc(emailKey(email));
-          ref.get().then(function (snap) {
-            var data = { name: name, email: email };
-            if (!snap.exists) {
-              data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            }
-            return ref.set(data, { merge: true });
-          }).then(finish).catch(function () {
-            // Even if the DB write fails, let them in (offline-friendly)
-            finish();
-          });
-        } else {
-          finish();
+        function letIn() {
+          // Remember on this device so the gate is skipped next time
+          try { localStorage.setItem(STORE_KEY, JSON.stringify(customer)); } catch (err) { }
+          unlock();
         }
+        function failRetry() {
+          btn.disabled = false;
+          btn.textContent = original;
+          errEl.textContent = 'Connection issue — please try again.';
+        }
+
+        // Save the customer record in Firestore (keyed by email) FIRST, so every
+        // sign-in shows up in the admin. Wait for the DB to be ready if needed.
+        var waited = 0;
+        (function saveCustomer() {
+          if (window.db) {
+            var ref = window.db.collection('users').doc(emailKey(email));
+            ref.get().then(function (snap) {
+              var data = { name: name, email: email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
+              if (!snap.exists) {
+                data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+              }
+              return ref.set(data, { merge: true });
+            }).then(letIn).catch(function (err) {
+              console.error('Could not save customer:', err);
+              failRetry();
+            });
+            return;
+          }
+          if (waited >= 6000) {
+            // DB never became available — let them in anyway (offline), record saved locally
+            letIn();
+            return;
+          }
+          waited += 150;
+          setTimeout(saveCustomer, 150);
+        })();
       });
     })();
   </script>
