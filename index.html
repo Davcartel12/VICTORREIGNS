@@ -65,6 +65,7 @@ header { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,.8
 .header-container { max-width: var(--wrap); margin: 0 auto; padding: .9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .logo { display: flex; align-items: center; gap: .6rem; }
 .vr-logo-mark { display: inline-flex; align-items: center; gap: .3rem; }
+.logo-img { height: 34px; width: auto; display: block; }
 .vr-crown { color: var(--gold); font-size: .95rem; line-height: 1; }
 .vr-ring { width: 32px; height: 32px; border-radius: 50%; border: 1.8px solid var(--gold); display: flex; align-items: center; justify-content: center; color: var(--gold-deep); font-weight: 800; font-size: .68rem; letter-spacing: .5px; }
 .logo-text { font-weight: 800; font-size: 1.05rem; line-height: 1; color: var(--ink); letter-spacing: -.01em; }
@@ -320,7 +321,7 @@ footer { border-top: 1px solid var(--line); background: var(--bg); margin-top: 1
   <header>
     <div class="header-container">
       <a class="logo" href="index.html">
-        <div class="vr-logo-mark"><span class="vr-crown">&#9819;</span><div class="vr-ring"><span>VR</span></div></div>
+        <img src="logo.png" alt="VictorReigns Empire" class="logo-img">
         <span class="logo-text">VictorReigns<br><span class="logo-sub">EMPIRE</span></span>
       </a>
       <button class="mobile-menu-toggle" id="menu-toggle">&#9776;</button>
