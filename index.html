@@ -1645,10 +1645,168 @@
       outline: 2px solid var(--gold-deep);
       outline-offset: 2px;
     }
+
+    /* ---------- DOOR INTRO ---------- */
+    #vr-doors {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    #vr-doors.vr-hidden {
+      display: none;
+    }
+
+    .vr-door {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(135deg, #1a1712 0%, #0b0906 100%);
+      will-change: transform;
+      transition: transform 1.35s cubic-bezier(.7, 0, .2, 1);
+    }
+
+    .vr-door-left {
+      left: 0;
+      border-right: 1px solid var(--gold);
+      box-shadow: 8px 0 30px rgba(0, 0, 0, .45);
+    }
+
+    .vr-door-right {
+      right: 0;
+      border-left: 1px solid var(--gold);
+      box-shadow: -8px 0 30px rgba(0, 0, 0, .45);
+      background: linear-gradient(225deg, #1a1712 0%, #0b0906 100%);
+    }
+
+    .vr-door-inset {
+      position: absolute;
+      inset: clamp(10px, 2vw, 22px);
+      border: 1px solid rgba(201, 168, 76, .30);
+      border-radius: 2px;
+    }
+
+    .vr-door-handle {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 9px;
+      height: clamp(40px, 7vh, 64px);
+      border-radius: 5px;
+      background: var(--gold);
+    }
+
+    .vr-door-left .vr-door-handle {
+      right: clamp(12px, 1.6vw, 20px);
+    }
+
+    .vr-door-right .vr-door-handle {
+      left: clamp(12px, 1.6vw, 20px);
+    }
+
+    .vr-door-seal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      transition: opacity .5s ease, transform .5s ease;
+    }
+
+    .vr-door-logo {
+      height: clamp(90px, 16vh, 150px);
+      width: auto;
+      margin: 0 auto;
+      display: block;
+      filter: drop-shadow(0 6px 22px rgba(0, 0, 0, .5));
+    }
+
+    .vr-door-word {
+      margin-top: 14px;
+      color: var(--gold);
+      font-size: clamp(10px, 1.4vw, 13px);
+      letter-spacing: .38em;
+      font-weight: 700;
+    }
+
+    /* open state */
+    #vr-doors.vr-open .vr-door-left {
+      transform: translateX(-100%);
+    }
+
+    #vr-doors.vr-open .vr-door-right {
+      transform: translateX(100%);
+    }
+
+    #vr-doors.vr-open .vr-door-seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.94);
+    }
+
+    body.vr-locked {
+      overflow: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .vr-door,
+      .vr-door-seal {
+        transition: none !important;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <!-- ══════════════════ DOOR INTRO ══════════════════ -->
+  <div id="vr-doors" aria-hidden="true">
+    <div class="vr-door vr-door-left">
+      <div class="vr-door-inset"></div>
+      <div class="vr-door-handle"></div>
+    </div>
+    <div class="vr-door vr-door-right">
+      <div class="vr-door-inset"></div>
+      <div class="vr-door-handle"></div>
+    </div>
+    <div class="vr-door-seal">
+      <img src="logo1.png" alt="VictorReigns Empire" class="vr-door-logo">
+      <div class="vr-door-word">VICTORREIGNS EMPIRE</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var doors = document.getElementById('vr-doors');
+      // Play once per browser session only
+      if (sessionStorage.getItem('vrDoorsShown')) {
+        doors.classList.add('vr-hidden');
+        return;
+      }
+      sessionStorage.setItem('vrDoorsShown', '1');
+      document.body.classList.add('vr-locked');
+
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var HOLD = reduce ? 200 : 750;   // pause with doors shut
+      var SLIDE = reduce ? 50 : 1450; // door slide duration + buffer
+
+      function open() {
+        doors.classList.add('vr-open');
+        setTimeout(function () {
+          doors.classList.add('vr-hidden');
+          document.body.classList.remove('vr-locked');
+        }, SLIDE);
+      }
+      // Wait until the logo is loaded (or a short fallback) so doors never flash empty
+      var img = doors.querySelector('.vr-door-logo');
+      var started = false;
+      function begin() { if (started) return; started = true; setTimeout(open, HOLD); }
+      if (img && img.complete) begin();
+      else if (img) { img.addEventListener('load', begin); img.addEventListener('error', begin); setTimeout(begin, 1200); }
+      else begin();
+    })();
+  </script>
+
   <header>
     <div class="header-container">
       <a class="logo" href="index.html">
