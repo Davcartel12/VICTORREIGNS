@@ -1112,25 +1112,47 @@ body.vr-locked { overflow: hidden; }
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
   }
 
-  /* ---------- Firestore + product cache ----------
-     Products are cached in sessionStorage so they appear instantly when
-     navigating between pages (no re-fetch flicker). The cache is refreshed
-     in the background on every load, so data stays current.               */
+  /* ---------- Product store (SPA: fetch once, keep in memory) ----------
+     Products are loaded ONE time per session and held in memory. Every view
+     reads from `PRODUCTS` — no database call when navigating between views.
+     A single live listener keeps the store current (so admin edits appear),
+     and sessionStorage seeds it instantly on a fresh tab/reload.          */
   const PRODUCTS_CACHE_KEY = 'vr_products_cache';
-  const PRODUCTS_CACHE_MS = 5 * 60 * 1000; // treat as fresh for 5 min (still bg-refreshed)
+
+  let PRODUCTS = null;        // the in-memory store (array once loaded)
+  let productsPromise = null; // in-flight first load (shared by all callers)
+  let liveWired = false;      // live-updates listener attached?
+  const productSubs = [];     // views that want to re-render on change
 
   function readProductCache() {
     try {
-      const raw = sessionStorage.getItem(PRODUCTS_CACHE_KEY);
-      if (!raw) return null;
-      const obj = JSON.parse(raw);
-      if (!obj || !Array.isArray(obj.items)) return null;
-      return obj; // { items, ts }
+      const obj = JSON.parse(sessionStorage.getItem(PRODUCTS_CACHE_KEY) || 'null');
+      return obj && Array.isArray(obj.items) ? obj.items : null;
     } catch { return null; }
   }
   function writeProductCache(items) {
-    try { sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ items: items, ts: Date.now() })); }
+    try { sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ items, ts: Date.now() })); }
     catch (e) {}
+  }
+
+  function setProducts(items) {
+    const changed = !PRODUCTS || JSON.stringify(items) !== JSON.stringify(PRODUCTS);
+    PRODUCTS = items;
+    writeProductCache(items);
+    if (changed) productSubs.forEach(fn => { try { fn(items); } catch (e) {} });
+  }
+
+  // Attach ONE realtime listener for the whole session. Keeps PRODUCTS fresh
+  // without any view ever issuing its own query.
+  function wireLiveProducts() {
+    if (liveWired || !window.db) return;
+    liveWired = true;
+    try {
+      window.db.collection('products').orderBy('createdAt', 'desc')
+        .onSnapshot(snap => {
+          setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }, () => {}); // errors are non-fatal; we keep what we have
+    } catch (e) { liveWired = false; }
   }
 
   async function fetchProductsFromDb() {
@@ -1144,42 +1166,39 @@ body.vr-locked { overflow: hidden; }
     }
   }
 
-  /* Returns cached products immediately when available. If `onFresh` is
-     provided, a background refresh runs and calls it with new data ONLY
-     when the data actually changed — so callers can re-render seamlessly. */
-  async function fetchAllProducts(onFresh) {
-    const cached = readProductCache();
+  /* The only product accessor. Returns the in-memory store instantly once it
+     exists — no network. `onFresh` is called later if the data ever changes. */
+  function fetchAllProducts(onFresh) {
+    if (onFresh && productSubs.indexOf(onFresh) === -1) productSubs.push(onFresh);
 
-    // Background refresh (always runs; updates cache + notifies if changed)
-    const refresh = fetchProductsFromDb().then(fresh => {
-      const prevRaw = cached ? JSON.stringify(cached.items) : null;
-      writeProductCache(fresh);
-      if (onFresh && JSON.stringify(fresh) !== prevRaw) {
-        try { onFresh(fresh); } catch (e) {}
-      }
-      return fresh;
-    }).catch(err => { throw err; });
+    // Already in memory → hand it back immediately (no DB call, no await gap)
+    if (PRODUCTS) { wireLiveProducts(); return Promise.resolve(PRODUCTS); }
 
-    if (cached && cached.items.length) {
-      return cached.items;          // instant — no flicker
+    // Seed instantly from this tab's cache, then keep it live
+    const seeded = readProductCache();
+    if (seeded && seeded.length) {
+      PRODUCTS = seeded;
+      wireLiveProducts();
+      return Promise.resolve(PRODUCTS);
     }
-    return refresh;                  // first visit: wait for the network once
+
+    // First ever load this session — fetch once; all callers share this promise
+    if (!productsPromise) {
+      productsPromise = fetchProductsFromDb().then(items => {
+        setProducts(items);
+        wireLiveProducts();
+        return items;
+      }).catch(err => { productsPromise = null; throw err; });
+    }
+    return productsPromise;
   }
 
+  // Products are already in memory — no query needed.
   async function fetchProduct(id) {
-    // Try the cache first (covers navigation from shop → product with no fetch)
-    const cached = readProductCache();
-    if (cached) {
-      const hit = cached.items.find(p => p.id === id);
-      if (hit) {
-        // Refresh this one in the background so details stay current
-        if (window.db) {
-          window.db.collection('products').doc(id).get()
-            .then(() => {}).catch(() => {});
-        }
-        return hit;
-      }
-    }
+    const all = await fetchAllProducts();
+    const hit = all.find(p => p.id === id);
+    if (hit) return hit;
+    // Not in the store (e.g. a stale link) — fall back to a single lookup
     if (!window.db) throw new Error('no-db');
     const doc = await window.db.collection('products').doc(id).get();
     return doc.exists ? { id: doc.id, ...doc.data() } : null;
@@ -1214,7 +1233,7 @@ body.vr-locked { overflow: hidden; }
   async function initHome() {
     const grid = $('.featured-products');
     if (!grid) return;
-    msg(grid, 'Loading products…');
+    if (!PRODUCTS) msg(grid, 'Loading products…');   // only on the very first load
 
     function render(products, mode) {
       const title = $('#home-products-title');
@@ -1295,7 +1314,7 @@ body.vr-locked { overflow: hidden; }
       wireOnce(form, 'shop-search-form', 'submit', (e) => { e.preventDefault(); shopState.q = searchInput.value.trim(); shopApply(); });
     }
 
-    msg(grid, 'Loading products…');
+    if (!PRODUCTS) msg(grid, 'Loading products…');   // only on the very first load
     try {
       shopState.all = await fetchAllProducts(fresh => {
         shopState.all = fresh;
