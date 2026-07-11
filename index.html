@@ -75,6 +75,17 @@ nav a { font-size: .9rem; font-weight: 600; color: var(--text-light); transition
 nav a:hover { color: var(--ink); }
 .cart-icon { display: inline-flex; align-items: center; gap: .35rem; position: relative; font-size: 1.15rem; line-height: 1; padding: .45rem .7rem; border: 1px solid var(--line-2); border-radius: var(--pill); color: var(--ink); }
 .cart-icon:hover { border-color: var(--ink); }
+/* ---------- ACCOUNT CHIP ---------- */
+.acct { position: relative; }
+.acct-btn { display: inline-flex; align-items: center; gap: .45rem; background: none; border: 1px solid var(--line-2); border-radius: var(--pill); padding: .3rem .7rem .3rem .35rem; cursor: pointer; font-family: inherit; color: var(--ink); transition: border-color .18s; }
+.acct-btn:hover { border-color: var(--ink); }
+.acct-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--gold-soft); color: var(--gold-deep); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .75rem; flex-shrink: 0; }
+.acct-name { font-size: .85rem; font-weight: 600; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-menu { position: absolute; right: 0; top: calc(100% + .5rem); min-width: 190px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 40px rgba(22,18,13,.12); padding: .5rem; display: none; z-index: 200; }
+.acct-menu.open { display: block; }
+.acct-email { font-size: .78rem; color: var(--muted); padding: .5rem .6rem; border-bottom: 1px solid var(--line); margin-bottom: .35rem; word-break: break-all; }
+.acct-menu button { width: 100%; text-align: left; background: none; border: none; padding: .55rem .6rem; border-radius: 8px; font-family: inherit; font-size: .88rem; font-weight: 600; color: var(--ink); cursor: pointer; }
+.acct-menu button:hover { background: var(--bg-soft); }
 .cart-count { background: var(--ink); color: #fff; font-size: .7rem; font-weight: 700; min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--pill); display: inline-flex; align-items: center; justify-content: center; }
 .mobile-menu-toggle { display: none; background: none; border: 1px solid var(--line-2); border-radius: 10px; width: 40px; height: 38px; font-size: 1.2rem; color: var(--ink); cursor: pointer; line-height: 1; }
 
@@ -546,9 +557,24 @@ body.vr-locked { overflow: hidden; }
         if (window.db) {
           var ref = window.db.collection('users').doc(cust.email.toLowerCase().replace(/[^a-z0-9]/g, '_'));
           ref.get().then(function (snap) {
-            var data = { name: cust.name || '', email: cust.email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
-            if (!snap.exists) { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
-            return ref.set(data, { merge: true });
+            if (snap.exists) {
+              // Account exists — never overwrite the original name. If the local
+              // copy has drifted, correct it from the server (the source of truth).
+              var existing = snap.data() || {};
+              if (existing.name && existing.name !== cust.name) {
+                try {
+                  localStorage.setItem(STORE_KEY, JSON.stringify({ name: existing.name, email: cust.email }));
+                } catch (e) {}
+              }
+              return ref.set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            }
+            // Record missing (e.g. deleted) — recreate it from what we have.
+            return ref.set({
+              name: cust.name || '',
+              email: cust.email,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
           }).catch(function () {});
           return;
         }
@@ -593,18 +619,28 @@ body.vr-locked { overflow: hidden; }
         errEl.textContent = 'Connection issue — please try again.';
       }
 
-      // Save the customer record in Firestore (keyed by email) FIRST, so every
-      // sign-in shows up in the admin. Wait for the DB to be ready if needed.
+      // The EMAIL is the identity. If an account already exists for it, we log
+      // them back into that same account and KEEP the original name — we never
+      // create a duplicate, and a newly-typed name does not overwrite it.
       var waited = 0;
       (function saveCustomer() {
         if (window.db) {
           var ref = window.db.collection('users').doc(emailKey(email));
           ref.get().then(function (snap) {
-            var data = { name: name, email: email, lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
-            if (!snap.exists) {
-              data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            if (snap.exists) {
+              // ── Existing account → log back in, keep the original name ──
+              var existing = snap.data() || {};
+              var originalName = existing.name || name;
+              customer = { name: originalName, email: email };   // session uses original name
+              return ref.set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
             }
-            return ref.set(data, { merge: true });
+            // ── New account → create it ──
+            return ref.set({
+              name: name,
+              email: email,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
           }).then(letIn).catch(function (err) {
             console.error('Could not save customer:', err);
             failRetry();
@@ -637,6 +673,16 @@ body.vr-locked { overflow: hidden; }
         <a href="reviews.html">Reviews</a>
         <a href="contact.html">Contact</a>
         <a href="cart.html" class="cart-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block;vertical-align:-0.15em;margin-right:.45em"><path d="M7 4h-2l-1 2v0m0 0l2.5 10.5a1 1 0 0 0 1 .8h9a1 1 0 0 0 1-.8L21 8H6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg><span class="cart-count">0</span></a>
+        <div class="acct" id="acct-chip" style="display:none">
+          <button class="acct-btn" id="acct-btn" type="button">
+            <span class="acct-avatar" id="acct-avatar">?</span>
+            <span class="acct-name" id="acct-name"></span>
+          </button>
+          <div class="acct-menu" id="acct-menu">
+            <div class="acct-email" id="acct-email"></div>
+            <button type="button" id="acct-signout">Sign out</button>
+          </div>
+        </div>
       </nav>
     </div>
   </header>
@@ -1597,6 +1643,40 @@ body.vr-locked { overflow: hidden; }
       else { addToCart(p, 1); toast(`${p.name} added to cart`); }
     });
     updateCartBadge();
+    initAccountChip();
+  }
+
+  /* ---------- ACCOUNT CHIP (who's signed in + sign out) ---------- */
+  function getSignedInCustomer() {
+    try { return JSON.parse(localStorage.getItem('vr_customer') || 'null'); }
+    catch (e) { return null; }
+  }
+  function initAccountChip() {
+    const chip = $('#acct-chip');
+    if (!chip) return;
+    const cust = getSignedInCustomer();
+    if (!cust || !cust.email) { chip.style.display = 'none'; return; }
+
+    const nm = cust.name || 'Customer';
+    const parts = nm.trim().split(/\s+/);
+    const inits = ((parts[0] || '?')[0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+    $('#acct-avatar').textContent = inits;
+    $('#acct-name').textContent = parts[0] || 'Account';
+    $('#acct-email').textContent = cust.email;
+    chip.style.display = '';
+
+    const btn = $('#acct-btn'), menu = $('#acct-menu');
+    wireOnce(btn, 'acct-btn', 'click', (e) => { e.stopPropagation(); menu.classList.toggle('open'); });
+    wireOnce(document, 'acct-doc', 'click', () => menu.classList.remove('open'));
+    wireOnce($('#acct-signout'), 'acct-signout', 'click', () => {
+      // Sign out: forget this device only. The account (and its orders/reviews)
+      // stays in Firestore — signing in with the same email returns to it.
+      try {
+        localStorage.removeItem('vr_customer');
+        sessionStorage.removeItem('vr_doors_played');
+      } catch (e) {}
+      location.reload();
+    });
   }
 
   // ── Homepage testimonials from live reviews ──
