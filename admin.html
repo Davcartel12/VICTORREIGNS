@@ -771,17 +771,8 @@
             gap: .3rem;
         }
 
-        .logo-img {
-            height: 34px;
-            width: auto;
-            display: block;
-        }
-
-        .logo-img-lg {
-            height: 60px;
-            width: auto;
-            display: block;
-        }
+        .logo-img { height: 34px; width: auto; display: block; }
+        .logo-img-lg { height: 60px; width: auto; display: block; }
 
         .vr-crown {
             font-size: 1rem;
@@ -872,7 +863,7 @@
 
             <!-- Tabs -->
             <div class="admin-tabs">
-                <button class="admin-tab-btn active" onclick="switchTab('products')">📦 Products</button>
+                <button class="admin-tab-btn active" onclick="switchTab('products')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Products</button>
             </div>
 
             <!-- ══ PRODUCTS TAB ══ -->
@@ -911,7 +902,7 @@
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="openAddProduct()">+ Add Product</button>
-                    <button class="btn btn-secondary" onclick="loadProducts()">↻ Refresh</button>
+                    <button class="btn btn-secondary" onclick="loadProducts()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh</button>
                 </div>
 
                 <div id="products-grid" class="products-grid-admin">
@@ -919,7 +910,7 @@
                 </div>
                 <div id="no-products" class="no-orders hidden"
                     style="text-align:center;padding:3rem;color:var(--muted)">
-                    <p style="font-size:2rem;margin-bottom:.5rem">📦</p>
+                    <p style="font-size:2rem;margin-bottom:.5rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></p>
                     <p>No products found. Add your first product!</p>
                 </div>
             </div>
@@ -948,7 +939,7 @@
                                 ondragover="event.preventDefault();this.classList.add('dragover')"
                                 ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)"
                                 style="border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s">
-                                <div style="font-size:1.8rem;margin-bottom:.3rem">🖼️</div>
+                                <div style="font-size:1.8rem;margin-bottom:.3rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><rect x="3" y="4.5" width="18" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="9.5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 17l5-4 4 3 3-2.5 4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
                                 <p style="color:var(--muted);font-size:.85rem;margin:0">Drag &amp; drop or <strong
                                         style="color:var(--gold)">click to upload</strong></p>
                                 <p style="color:var(--muted);font-size:.74rem;margin:.3rem 0 0">JPG, PNG, WEBP — max 800
@@ -1096,7 +1087,7 @@
             if (!adminDb) return;
             try {
                 await adminFb.setDoc(adminFb.doc(adminDb, 'settings', 'homepage'), { titleSelection: val }, { merge: true });
-                showToast('Homepage title updated ✓', 'success');
+                showToast('Homepage title updated <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'success');
             } catch (err) {
                 console.error("Could not config title", err);
                 showToast('Error: ' + err.message, 'error');
@@ -1155,8 +1146,8 @@
                 <div class="pc-name">${p.name}</div>
                 <div class="pc-price">${Number(p.price).toLocaleString()} FCFA</div>
                 <div class="pc-actions" style="margin-top:.75rem">
-                    <button class="btn btn-secondary btn-sm" onclick="openEditProduct('${p.id}')">✏️ Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}','${(p.imageUrl || '').replace(/'/g, "\\'")}')">🗑️ Delete</button>
+                    <button class="btn btn-secondary btn-sm" onclick="openEditProduct('${p.id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M4 20h4l10-10-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.6"/></svg> Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}','${(p.imageUrl || '').replace(/'/g, "\\'")}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M5 7h14M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2M6 7l1 12a1 1 0 0 0 1 .9h8a1 1 0 0 0 1-.9L18 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete</button>
                 </div>
             </div>
         </div>
@@ -1189,9 +1180,9 @@
         /* ─── Compress + convert to base64 ─────────────────────── */
         function processImageFile(file) {
             if (!file.type.startsWith('image/')) {
-                setUploadStatus('❌ Please select an image file.', true); return;
+                setUploadStatus('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg> Please select an image file.', true); return;
             }
-            setUploadStatus('⏳ Processing…');
+            setUploadStatus('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em;margin-right:.4em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Processing…');
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const img = new Image();
@@ -1205,9 +1196,9 @@
                     const b64 = canvas.toDataURL('image/jpeg', Q);
                     const kb = Math.round(b64.length * 0.75 / 1024);
                     if (kb > 900) {
-                        setUploadStatus(`⚠️ Compressed to ${kb} KB — try a smaller image for best performance.`);
+                        setUploadStatus(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M12 3l9 16H3L12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 9v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1"/></svg> Compressed to ${kb} KB — try a smaller image for best performance.`);
                     } else {
-                        setUploadStatus(`✅ Ready — ${kb} KB`);
+                        setUploadStatus(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Ready — ${kb} KB`);
                     }
                     document.getElementById('img-base64').value = b64;
                     const prev = document.getElementById('img-preview');
@@ -1219,7 +1210,7 @@
         }
         function setUploadStatus(msg, isErr) {
             const el = document.getElementById('upload-status');
-            el.textContent = msg;
+            el.innerHTML = msg;
             el.style.color = isErr ? 'var(--red)' : 'var(--muted)';
         }
 
@@ -1297,11 +1288,11 @@
 
                 if (id) {
                     await adminFb.updateDoc(adminFb.doc(adminDb, 'products', id), data);
-                    showToast('Product updated ✓', 'success');
+                    showToast('Product updated <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'success');
                 } else {
                     data.createdAt = adminFb.serverTimestamp();
                     await adminFb.addDoc(adminFb.collection(adminDb, 'products'), data);
-                    showToast('Product added ✓', 'success');
+                    showToast('Product added <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'success');
                 }
 
                 closeProductModal();
@@ -1331,7 +1322,7 @@
         /* ─── Toast ─────────────────────────────────────────────── */
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
-            t.textContent = msg;
+            t.innerHTML = msg;
             t.className = type + ' show';
             clearTimeout(t._timer);
             t._timer = setTimeout(() => t.classList.remove('show'), 3000);
