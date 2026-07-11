@@ -496,17 +496,39 @@ body.vr-locked { overflow: hidden; }
       catch (e) { return null; }
     }
 
-    // ── Decide: already entered before → skip, else show the form ──
+    // ── Decide: play the doors once per session ──
+    // New visitor  → doors open, auth form waits for their details.
+    // Returning     → doors open (animation plays), then dismiss automatically.
+    // Same session  → already played, skip straight in (no re-animation).
+    var SESSION_KEY = 'vr_doors_played';
+    var SLIDE_MS = reduce ? 100 : 2400;   // must match .vr-door transition duration
+
     var began = false;
     function begin() {
       if (began) return; began = true;
+
+      var saved = getSavedCustomer();
+
+      // Already saw the doors in this tab session → no animation, straight in.
+      if (sessionStorage.getItem(SESSION_KEY) && saved && saved.email) {
+        unlock();
+        ensureCustomerRecord(saved);
+        return;
+      }
+
       setTimeout(function () {
-        var saved = getSavedCustomer();
+        try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
+
         if (saved && saved.email) {
-          unlock();                       // returning visitor — straight in
-          ensureCustomerRecord(saved);    // make sure they're still in the admin list
+          // Returning customer: no form needed — hide it so the doors just open.
+          var authBox = doors.querySelector('.vr-auth');
+          if (authBox) authBox.style.display = 'none';
+          openDoors();
+          ensureCustomerRecord(saved);
+          setTimeout(unlock, SLIDE_MS);    // dismiss once the slide finishes
         } else {
-          openDoors();                    // new visitor — show the form
+          // New visitor: doors open to reveal the form; unlock() runs on submit.
+          openDoors();
         }
       }, reduce ? 150 : 900);
     }
