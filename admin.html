@@ -11,6 +11,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VR Admin">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -800,6 +802,12 @@
                 min-width: unset;
             }
         }
+
+        /* ── Image upload zone ── */
+        #drop-zone.dragover {
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, .07);
+        }
     </style>
 </head>
 
@@ -923,15 +931,51 @@
                     <input type="hidden" id="edit-product-id">
                     <input type="hidden" id="edit-image-url">
 
-                    <!-- Image URL -->
+                    <!-- Image upload / URL -->
                     <div class="form-group">
-                        <label>Product Image URL</label>
-                        <input type="url" id="product-image-url" placeholder="https://example.com/image.jpg"
-                               oninput="previewImageUrl(this.value)"
-                               style="width:100%;padding:.65rem .9rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit">
-                        <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem">Paste a direct image link (e.g. from Imgur, Cloudinary, Supaimg, etc.)</p>
+                        <label>Product Image</label>
+
+                        <!-- Tab switcher -->
+                        <div style="display:flex;gap:.4rem;margin-bottom:.7rem">
+                            <button type="button" id="tab-upload" onclick="switchImgTab('upload')"
+                                style="flex:1;padding:.45rem;border-radius:7px;border:1.5px solid var(--gold);background:var(--gold);color:#000;font-size:.8rem;font-weight:700;cursor:pointer">
+                                📁 Upload File
+                            </button>
+                            <button type="button" id="tab-url" onclick="switchImgTab('url')"
+                                style="flex:1;padding:.45rem;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer">
+                                🔗 Paste URL
+                            </button>
+                        </div>
+
+                        <!-- Upload panel -->
+                        <div id="panel-upload">
+                            <div id="drop-zone"
+                                onclick="document.getElementById('file-input').click()"
+                                ondragover="event.preventDefault();this.classList.add('dragover')"
+                                ondragleave="this.classList.remove('dragover')"
+                                ondrop="handleDrop(event)"
+                                style="border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s">
+                                <div style="font-size:1.8rem;margin-bottom:.3rem">🖼️</div>
+                                <p style="color:var(--muted);font-size:.85rem;margin:0">Drag &amp; drop or <strong style="color:var(--gold)">click to upload</strong></p>
+                                <p style="color:var(--muted);font-size:.74rem;margin:.3rem 0 0">JPG, PNG, WEBP — max 800 KB (auto-compressed)</p>
+                            </div>
+                            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)">
+                            <div id="upload-status" style="font-size:.78rem;color:var(--muted);margin-top:.4rem;min-height:1.2em"></div>
+                        </div>
+
+                        <!-- URL panel -->
+                        <div id="panel-url" style="display:none">
+                            <input type="url" id="product-image-url" placeholder="https://example.com/image.jpg"
+                                oninput="previewImageUrl(this.value)"
+                                style="width:100%;padding:.65rem .9rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit">
+                            <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem">Paste a direct image link (Imgur, Cloudinary, etc.)</p>
+                        </div>
+
+                        <!-- Shared preview -->
                         <img id="img-preview" alt="Preview"
-                             style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:.75rem;display:none">
+                             style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:.75rem;display:none;border:1px solid var(--border)">
+                        <!-- base64 stored here, read by saveProduct -->
+                        <input type="hidden" id="img-base64">
                     </div>
 
                     <!-- Name & Price -->
@@ -1141,6 +1185,72 @@
             renderProducts(filtered);
         }
 
+        /* ─── Image tab switcher ────────────────────────────────── */
+        function switchImgTab(tab) {
+            const isUpload = tab === 'upload';
+            document.getElementById('panel-upload').style.display = isUpload ? '' : 'none';
+            document.getElementById('panel-url').style.display   = isUpload ? 'none' : '';
+            const tu = document.getElementById('tab-upload'), tl = document.getElementById('tab-url');
+            if (isUpload) {
+                tu.style.cssText += ';border-color:var(--gold);background:var(--gold);color:#000';
+                tl.style.cssText += ';border-color:var(--border);background:transparent;color:var(--muted)';
+            } else {
+                tl.style.cssText += ';border-color:var(--gold);background:var(--gold);color:#000';
+                tu.style.cssText += ';border-color:var(--border);background:transparent;color:var(--muted)';
+            }
+        }
+
+        /* ─── Drag & drop ───────────────────────────────────────── */
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processImageFile(file);
+        }
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) processImageFile(file);
+        }
+
+        /* ─── Compress + convert to base64 ─────────────────────── */
+        function processImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                setUploadStatus('❌ Please select an image file.', true); return;
+            }
+            setUploadStatus('⏳ Processing…');
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Compress: max 900px wide, JPEG quality 0.75
+                    const MAX = 900, Q = 0.75;
+                    let w = img.width, h = img.height;
+                    if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const b64 = canvas.toDataURL('image/jpeg', Q);
+                    const kb = Math.round(b64.length * 0.75 / 1024);
+                    if (kb > 900) {
+                        setUploadStatus(`⚠️ Compressed to ${kb} KB — try a smaller image for best Firestore performance.`);
+                    } else {
+                        setUploadStatus(`✅ Ready — ${kb} KB`);
+                    }
+                    // Store base64 and show preview
+                    document.getElementById('img-base64').value = b64;
+                    const prev = document.getElementById('img-preview');
+                    prev.src = b64; prev.style.display = 'block';
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        function setUploadStatus(msg, isErr) {
+            const el = document.getElementById('upload-status');
+            el.textContent = msg;
+            el.style.color = isErr ? 'var(--red)' : 'var(--muted)';
+        }
+
         /* ─── Add / Edit Product Modal ──────────────────────────── */
         function openAddProduct() {
             document.getElementById('product-modal-title').textContent = 'Add Product';
@@ -1148,7 +1258,11 @@
             document.getElementById('edit-product-id').value = '';
             document.getElementById('edit-image-url').value = '';
             document.getElementById('product-image-url').value = '';
+            document.getElementById('img-base64').value = '';
             document.getElementById('img-preview').style.display = 'none';
+            document.getElementById('file-input').value = '';
+            setUploadStatus('');
+            switchImgTab('upload');
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
@@ -1158,14 +1272,30 @@
             document.getElementById('product-modal-title').textContent = 'Edit Product';
             document.getElementById('edit-product-id').value = id;
             document.getElementById('edit-image-url').value = p.imageUrl || '';
-            document.getElementById('product-image-url').value = p.imageUrl || '';
+            document.getElementById('product-image-url').value = '';
+            document.getElementById('img-base64').value = '';
             document.getElementById('p-name').value = p.name || '';
             document.getElementById('p-price').value = p.price || '';
             document.getElementById('p-category').value = p.category || '';
             document.getElementById('p-description').value = p.description || '';
+            document.getElementById('file-input').value = '';
+            setUploadStatus('');
             const prev = document.getElementById('img-preview');
-            if (p.imageUrl) { prev.src = p.imageUrl; prev.style.display = 'block'; }
-            else prev.style.display = 'none';
+            if (p.imageUrl) {
+                prev.src = p.imageUrl; prev.style.display = 'block';
+                // Detect if it's already base64 and put it in the hidden field
+                if (p.imageUrl.startsWith('data:')) {
+                    document.getElementById('img-base64').value = p.imageUrl;
+                    switchImgTab('upload');
+                    setUploadStatus('✅ Current image loaded');
+                } else {
+                    document.getElementById('product-image-url').value = p.imageUrl;
+                    switchImgTab('url');
+                }
+            } else {
+                prev.style.display = 'none';
+                switchImgTab('upload');
+            }
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
@@ -1174,10 +1304,11 @@
         }
 
         function previewImageUrl(url) {
+            // Clear any uploaded base64 when user switches to URL
+            document.getElementById('img-base64').value = '';
             const prev = document.getElementById('img-preview');
             if (url && url.trim()) {
-                prev.src = url.trim();
-                prev.style.display = 'block';
+                prev.src = url.trim(); prev.style.display = 'block';
                 prev.onerror = () => { prev.style.display = 'none'; };
             } else {
                 prev.style.display = 'none';
@@ -1192,12 +1323,23 @@
             const btn = document.getElementById('save-product-btn');
             btn.disabled = true; btn.textContent = 'Saving…';
 
-            const id = document.getElementById('edit-product-id').value;
-            const name = document.getElementById('p-name').value.trim();
-            const price = parseFloat(document.getElementById('p-price').value);
-            const category = document.getElementById('p-category').value;
+            const id          = document.getElementById('edit-product-id').value;
+            const name        = document.getElementById('p-name').value.trim();
+            const price       = parseFloat(document.getElementById('p-price').value);
+            const category    = document.getElementById('p-category').value;
             const description = document.getElementById('p-description').value.trim();
-            const imageUrl = document.getElementById('product-image-url').value.trim();
+
+            // Priority: 1) newly uploaded base64, 2) URL field, 3) existing stored URL
+            const b64      = document.getElementById('img-base64').value;
+            const urlField = document.getElementById('product-image-url').value.trim();
+            const existing = document.getElementById('edit-image-url').value;
+            const imageUrl = b64 || urlField || existing;
+
+            if (!imageUrl) {
+                showToast('Please add a product image', 'error');
+                btn.disabled = false; btn.textContent = 'Save Product';
+                return;
+            }
 
             try {
                 const data = {
@@ -1207,11 +1349,9 @@
                 };
 
                 if (id) {
-                    // Edit existing
                     await adminFb.updateDoc(adminFb.doc(adminDb, 'products', id), data);
                     showToast('Product updated ✓', 'success');
                 } else {
-                    // Add new
                     data.createdAt = adminFb.serverTimestamp();
                     await adminFb.addDoc(adminFb.collection(adminDb, 'products'), data);
                     showToast('Product added ✓', 'success');
@@ -1221,7 +1361,7 @@
                 loadProducts();
             } catch (err) {
                 console.error(err);
-                showToast('Error saving product', 'error');
+                showToast('Error saving product: ' + err.message, 'error');
             } finally {
                 btn.disabled = false; btn.textContent = 'Save Product';
             }
