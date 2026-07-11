@@ -1126,12 +1126,15 @@ body.vr-locked { overflow: hidden; }
 
   function readProductCache() {
     try {
-      const obj = JSON.parse(sessionStorage.getItem(PRODUCTS_CACHE_KEY) || 'null');
+      // localStorage (not session) so products are instant on ANY visit —
+      // new tab, refresh, or return days later. The live listener corrects
+      // anything stale within a moment of loading.
+      const obj = JSON.parse(localStorage.getItem(PRODUCTS_CACHE_KEY) || 'null');
       return obj && Array.isArray(obj.items) ? obj.items : null;
     } catch { return null; }
   }
   function writeProductCache(items) {
-    try { sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ items, ts: Date.now() })); }
+    try { localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ items, ts: Date.now() })); }
     catch (e) {}
   }
 
@@ -1145,18 +1148,35 @@ body.vr-locked { overflow: hidden; }
   // Attach ONE realtime listener for the whole session. Keeps PRODUCTS fresh
   // without any view ever issuing its own query.
   function wireLiveProducts() {
-    if (liveWired || !window.db) return;
+    if (liveWired) return;
     liveWired = true;
-    try {
-      window.db.collection('products').orderBy('createdAt', 'desc')
-        .onSnapshot(snap => {
-          setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-        }, () => {}); // errors are non-fatal; we keep what we have
-    } catch (e) { liveWired = false; }
+    waitForDb().then(() => {
+      try {
+        window.db.collection('products').orderBy('createdAt', 'desc')
+          .onSnapshot(snap => {
+            setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          }, () => {}); // errors are non-fatal; we keep what we have
+      } catch (e) { liveWired = false; }
+    }).catch(() => { liveWired = false; });
+  }
+
+  // Firebase's scripts load at the end of <body>, so on a cold refresh the app
+  // may run first. Wait for `window.db` instead of failing.
+  function waitForDb(timeoutMs = 10000) {
+    if (window.db) return Promise.resolve(window.db);
+    return new Promise((resolve, reject) => {
+      let waited = 0;
+      (function poll() {
+        if (window.db) return resolve(window.db);
+        if (waited >= timeoutMs) return reject(new Error('no-db'));
+        waited += 100;
+        setTimeout(poll, 100);
+      })();
+    });
   }
 
   async function fetchProductsFromDb() {
-    if (!window.db) throw new Error('no-db');
+    await waitForDb();
     try {
       const snap = await window.db.collection('products').orderBy('createdAt', 'desc').get();
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1199,7 +1219,7 @@ body.vr-locked { overflow: hidden; }
     const hit = all.find(p => p.id === id);
     if (hit) return hit;
     // Not in the store (e.g. a stale link) — fall back to a single lookup
-    if (!window.db) throw new Error('no-db');
+    await waitForDb();
     const doc = await window.db.collection('products').doc(id).get();
     return doc.exists ? { id: doc.id, ...doc.data() } : null;
   }
