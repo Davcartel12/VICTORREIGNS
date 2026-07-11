@@ -89,11 +89,7 @@
             --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--sans);
@@ -103,1626 +99,566 @@
             -webkit-font-smoothing: antialiased;
             letter-spacing: -.005em;
         }
+        img { max-width: 100%; display: block; }
 
-        img {
-            max-width: 100%;
-            display: block;
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
         /* ─────────────────────────── Loading ─────────────────────────── */
         #loading-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--canvas);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            flex-direction: column;
-            gap: 1.6rem;
+            position: fixed; inset: 0; background: var(--canvas);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; flex-direction: column; gap: 1.6rem;
         }
-
-        .logo-img-lg {
-            height: 64px;
-            width: auto;
-        }
-
+        .logo-img-lg { height: 64px; width: auto; }
         .loading-bar-container {
-            width: 220px;
-            height: 2px;
-            background: var(--line-2);
-            border-radius: 2px;
-            overflow: hidden;
+            width: 220px; height: 2px; background: var(--line-2);
+            border-radius: 2px; overflow: hidden;
         }
-
         .loading-bar {
-            height: 100%;
-            width: 0;
+            height: 100%; width: 0;
             background: linear-gradient(90deg, var(--gold-deep), var(--gold));
             transition: width .3s;
         }
-
         .loading-percentage {
-            color: var(--gold-deep);
-            font-size: .7rem;
-            letter-spacing: .28em;
-            font-weight: 600;
+            color: var(--gold-deep); font-size: .7rem;
+            letter-spacing: .28em; font-weight: 600;
             font-family: var(--mono);
         }
 
         /* ─────────────────────────── Login ─────────────────────────── */
         #login-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--canvas);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9998;
-            padding: 1.5rem;
+            position: fixed; inset: 0; background: var(--canvas);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9998; padding: 1.5rem;
         }
-
         .login-container {
             background: var(--panel);
             border: 1px solid var(--line);
             border-radius: 18px;
             padding: 2.75rem 2.25rem;
-            width: 100%;
-            max-width: 380px;
-            text-align: center;
-            box-shadow: 0 12px 50px rgba(0, 0, 0, .5);
-            position: relative;
-            overflow: hidden;
+            width: 100%; max-width: 380px; text-align: center;
+            box-shadow: 0 12px 50px rgba(0,0,0,.5);
+            position: relative; overflow: hidden;
         }
-
         .login-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
+            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
-
-        .login-container .logo-img-lg {
-            margin: 0 auto 1.25rem;
-        }
-
+        .login-container .logo-img-lg { margin: 0 auto 1.25rem; }
         .login-container h1 {
-            font-size: 1.35rem;
-            color: var(--ink);
-            font-weight: 800;
-            letter-spacing: -.02em;
-            margin-bottom: .3rem;
+            font-size: 1.35rem; color: var(--ink); font-weight: 800;
+            letter-spacing: -.02em; margin-bottom: .3rem;
         }
-
-        .login-container>p {
-            color: var(--muted);
-            font-size: .82rem;
-            margin-bottom: 1.75rem;
+        .login-container > p {
+            color: var(--muted); font-size: .82rem; margin-bottom: 1.75rem;
             letter-spacing: .02em;
         }
-
-        .login-form .form-group {
-            text-align: left;
-            margin-bottom: 1rem;
-        }
-
+        .login-form .form-group { text-align: left; margin-bottom: 1rem; }
         .login-form label {
-            display: block;
-            font-size: .72rem;
-            color: var(--muted);
-            margin-bottom: .45rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .1em;
+            display: block; font-size: .72rem; color: var(--muted);
+            margin-bottom: .45rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .1em;
         }
-
         .login-form input {
-            width: 100%;
-            padding: .8rem 1rem;
-            background: var(--canvas);
-            border: 1px solid var(--line-2);
-            border-radius: var(--radius-sm);
-            color: var(--ink);
-            font-size: .95rem;
-            font-family: var(--sans);
-            outline: none;
+            width: 100%; padding: .8rem 1rem;
+            background: var(--canvas); border: 1px solid var(--line-2);
+            border-radius: var(--radius-sm); color: var(--ink);
+            font-size: .95rem; font-family: var(--sans); outline: none;
             transition: border-color .2s, box-shadow .2s;
         }
-
         .login-form input:focus {
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201, 168, 76, .22);
+            box-shadow: 0 0 0 3px rgba(201,168,76,.22);
         }
-
-        .login-form .btn {
-            width: 100%;
-            margin-top: .6rem;
-        }
-
+        .login-form .btn { width: 100%; margin-top: .6rem; }
         .login-error {
-            color: var(--red);
-            font-size: .82rem;
-            margin-top: .8rem;
-            min-height: 1.2em;
+            color: var(--red); font-size: .82rem;
+            margin-top: .8rem; min-height: 1.2em;
         }
 
         /* ─────────────────────────── App shell ─────────────────────────── */
-        #admin-panel {
-            display: flex;
-            min-height: 100vh;
-        }
+        #admin-panel { display: flex; min-height: 100vh; }
 
         /* Sidebar */
-        .admin-header {
-            /* repurposed as sidebar */
+        .admin-header { /* repurposed as sidebar */
             width: var(--sidebar-w);
             flex-shrink: 0;
             background: var(--panel);
             border-right: 1px solid var(--line);
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
+            position: fixed; top: 0; bottom: 0; left: 0;
+            display: flex; flex-direction: column;
             z-index: 100;
         }
-
         .admin-header-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+            display: flex; flex-direction: column; height: 100%;
             padding: 1.5rem 1rem 1.1rem;
         }
-
         .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
+            display: flex; align-items: center; gap: .6rem;
             padding: .2rem .4rem 1.4rem;
-            font-size: .95rem;
-            font-weight: 800;
-            color: var(--ink);
-            letter-spacing: -.01em;
-            line-height: 1.15;
+            font-size: .95rem; font-weight: 800; color: var(--ink);
+            letter-spacing: -.01em; line-height: 1.15;
             border-bottom: 1px solid var(--line);
             margin-bottom: 1.1rem;
         }
+        .admin-logo .logo-img { height: 34px; width: auto; }
+        .admin-logo span { display: block; font-size: .62rem; font-weight: 700;
+            letter-spacing: .3em; color: var(--gold-deep); margin-top: 2px; }
 
-        .admin-logo .logo-img {
-            height: 34px;
-            width: auto;
-        }
-
-        .admin-logo span {
-            display: block;
-            font-size: .62rem;
-            font-weight: 700;
-            letter-spacing: .3em;
-            color: var(--gold-deep);
-            margin-top: 2px;
-        }
-
-        .side-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
+        .side-nav { display: flex; flex-direction: column; gap: 2px; }
         .side-label {
-            font-size: .64rem;
-            font-weight: 700;
-            letter-spacing: .16em;
-            text-transform: uppercase;
-            color: var(--faint);
-            padding: 0 .55rem;
-            margin-bottom: .5rem;
+            font-size: .64rem; font-weight: 700; letter-spacing: .16em;
+            text-transform: uppercase; color: var(--faint);
+            padding: 0 .55rem; margin-bottom: .5rem;
         }
-
-        .admin-tab-btn {
-            /* nav item */
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            width: 100%;
-            text-align: left;
-            padding: .62rem .6rem;
-            border: none;
-            background: none;
-            color: var(--text);
-            font-family: var(--sans);
-            font-size: .88rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: var(--radius-sm);
-            letter-spacing: -.01em;
+        .admin-tab-btn { /* nav item */
+            display: flex; align-items: center; gap: .6rem;
+            width: 100%; text-align: left;
+            padding: .62rem .6rem; border: none; background: none;
+            color: var(--text); font-family: var(--sans);
+            font-size: .88rem; font-weight: 600; cursor: pointer;
+            border-radius: var(--radius-sm); letter-spacing: -.01em;
             transition: background .15s, color .15s;
             position: relative;
         }
-
-        .admin-tab-btn svg {
-            flex-shrink: 0;
-        }
-
-        .admin-tab-btn:hover {
-            background: var(--canvas);
-            color: var(--ink);
-        }
-
+        .admin-tab-btn svg { flex-shrink: 0; }
+        .admin-tab-btn:hover { background: var(--canvas); color: var(--ink); }
         .admin-tab-btn.active {
-            background: var(--gold-soft);
-            color: var(--gold-deep);
+            background: var(--gold-soft); color: var(--gold-deep);
         }
-
         .admin-tab-btn.active::before {
-            content: "";
-            position: absolute;
-            left: -1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 18px;
-            background: var(--gold-deep);
-            border-radius: 0 3px 3px 0;
+            content: ""; position: absolute; left: -1rem; top: 50%;
+            transform: translateY(-50%); width: 3px; height: 18px;
+            background: var(--gold-deep); border-radius: 0 3px 3px 0;
         }
 
-        .side-foot {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding-top: 1rem;
-            border-top: 1px solid var(--line);
-        }
-
+        .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px;
+            padding-top: 1rem; border-top: 1px solid var(--line); }
         .side-link {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            padding: .58rem .6rem;
-            border-radius: var(--radius-sm);
-            font-size: .84rem;
-            font-weight: 600;
-            color: var(--muted);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-family: var(--sans);
-            text-align: left;
-            width: 100%;
-            transition: background .15s, color .15s;
-            letter-spacing: -.01em;
+            display: flex; align-items: center; gap: .6rem;
+            padding: .58rem .6rem; border-radius: var(--radius-sm);
+            font-size: .84rem; font-weight: 600; color: var(--muted);
+            cursor: pointer; background: none; border: none;
+            font-family: var(--sans); text-align: left; width: 100%;
+            transition: background .15s, color .15s; letter-spacing: -.01em;
         }
-
-        .side-link:hover {
-            background: var(--canvas);
-            color: var(--ink);
-        }
-
-        .side-link.danger:hover {
-            background: var(--red-soft);
-            color: var(--red);
-        }
+        .side-link:hover { background: var(--canvas); color: var(--ink); }
+        .side-link.danger:hover { background: var(--red-soft); color: var(--red); }
 
         /* Main */
         .admin-main {
-            flex: 1;
-            margin-left: var(--sidebar-w);
+            flex: 1; margin-left: var(--sidebar-w);
             padding: 2rem 2.25rem 3rem;
             max-width: 1240px;
         }
-
         .page-head {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.6rem;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: 1rem; margin-bottom: 1.6rem;
         }
-
         .page-head h1 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--ink);
-            letter-spacing: -.025em;
-            line-height: 1;
+            font-size: 1.5rem; font-weight: 800; color: var(--ink);
+            letter-spacing: -.025em; line-height: 1;
         }
+        .page-head p { font-size: .85rem; color: var(--muted); margin-top: .35rem; }
 
-        .page-head p {
-            font-size: .85rem;
-            color: var(--muted);
-            margin-top: .35rem;
-        }
-
-        .admin-section {
-            animation: fade .25s ease;
-        }
-
-        @keyframes fade {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
+        .admin-section { animation: fade .25s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
         /* ─────────────────────────── Stats ─────────────────────────── */
         .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 1.6rem;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 14px; margin-bottom: 1.6rem;
         }
-
         .stat-card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            padding: 1.15rem 1.2rem;
-            position: relative;
-            overflow: hidden;
+            background: var(--card); border: 1px solid var(--line);
+            border-radius: var(--radius); padding: 1.15rem 1.2rem;
+            position: relative; overflow: hidden;
         }
-
         .stat-card h3 {
-            font-size: .68rem;
-            font-weight: 700;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: .11em;
-            margin-bottom: .55rem;
+            font-size: .68rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .11em; margin-bottom: .55rem;
         }
-
         .stat-card p {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--ink);
-            font-family: var(--mono);
-            letter-spacing: -.03em;
-            line-height: 1;
+            font-size: 1.75rem; font-weight: 700; color: var(--ink);
+            font-family: var(--mono); letter-spacing: -.03em; line-height: 1;
         }
-
         .stat-card .stat-sub {
-            font-size: .74rem;
-            color: var(--faint);
-            margin-top: .4rem;
-            font-family: var(--sans);
-            font-weight: 500;
-            letter-spacing: 0;
+            font-size: .74rem; color: var(--faint); margin-top: .4rem;
+            font-family: var(--sans); font-weight: 500; letter-spacing: 0;
         }
-
-        .stat-card.accent {
-            background: linear-gradient(160deg, #221d10, #1a1a1a);
-            border-color: var(--gold-line);
-        }
-
-        .stat-card.accent h3 {
-            color: var(--gold);
-            opacity: .75;
-        }
-
-        .stat-card.accent p {
-            color: var(--gold);
-            font-size: 1.25rem;
-            padding-top: .2rem;
-            font-family: var(--sans);
-            font-weight: 800;
-            letter-spacing: -.01em;
-        }
-
-        .stat-card.accent .stat-sub {
-            color: var(--muted);
-        }
+        .stat-card.accent { background: linear-gradient(160deg, #221d10, #1a1a1a); border-color: var(--gold-line); }
+        .stat-card.accent h3 { color: var(--gold); opacity: .75; }
+        .stat-card.accent p { color: var(--gold); font-size: 1.25rem; padding-top: .2rem;
+            font-family: var(--sans); font-weight: 800; letter-spacing: -.01em; }
+        .stat-card.accent .stat-sub { color: var(--muted); }
 
         /* ─────────────────────────── Toolbar ─────────────────────────── */
         .admin-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 1.5rem; flex-wrap: wrap;
         }
-
         .setting-chip {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--card);
-            padding: .5rem .55rem .5rem .85rem;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-sm);
+            display: flex; align-items: center; gap: 10px;
+            background: var(--card); padding: .5rem .55rem .5rem .85rem;
+            border: 1px solid var(--line); border-radius: var(--radius-sm);
         }
-
-        .setting-chip>span {
-            color: var(--muted);
-            font-size: .68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .1em;
+        .setting-chip > span {
+            color: var(--muted); font-size: .68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .1em;
         }
-
         #home-title-toggle {
-            border: none;
-            background: var(--canvas);
-            color: var(--ink);
-            font-weight: 600;
-            font-family: var(--sans);
-            font-size: .85rem;
-            padding: .35rem 1.8rem .35rem .6rem;
-            border-radius: 7px;
-            cursor: pointer;
-            outline: none;
-            appearance: none;
+            border: none; background: var(--canvas); color: var(--ink);
+            font-weight: 600; font-family: var(--sans); font-size: .85rem;
+            padding: .35rem 1.8rem .35rem .6rem; border-radius: 7px; cursor: pointer;
+            outline: none; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23c9a84c' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right .55rem center;
+            background-repeat: no-repeat; background-position: right .55rem center;
         }
-
-        .search-filter {
-            display: flex;
-            gap: 10px;
-            flex: 1;
-            min-width: 240px;
-        }
-
+        .search-filter { display: flex; gap: 10px; flex: 1; min-width: 240px; }
         .search-input {
-            flex: 1;
-            padding: .62rem .9rem .62rem 2.3rem;
+            flex: 1; padding: .62rem .9rem .62rem 2.3rem;
             background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a09a8c' stroke-width='1.8'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat .8rem center;
-            border: 1px solid var(--line-2);
-            border-radius: var(--radius-sm);
-            color: var(--ink);
-            font-size: .88rem;
-            font-family: var(--sans);
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
+            border: 1px solid var(--line-2); border-radius: var(--radius-sm);
+            color: var(--ink); font-size: .88rem; font-family: var(--sans);
+            outline: none; transition: border-color .2s, box-shadow .2s;
         }
-
-        .search-input::placeholder {
-            color: var(--faint);
-        }
-
-        .search-input:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201, 168, 76, .22);
-        }
-
+        .search-input::placeholder { color: var(--faint); }
+        .search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.22); }
         .filter-select {
             padding: .62rem 2rem .62rem .9rem;
-            background: var(--card);
-            border: 1px solid var(--line-2);
-            border-radius: var(--radius-sm);
-            color: var(--ink);
-            font-size: .88rem;
-            font-family: var(--sans);
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            appearance: none;
+            background: var(--card); border: 1px solid var(--line-2);
+            border-radius: var(--radius-sm); color: var(--ink);
+            font-size: .88rem; font-family: var(--sans); font-weight: 500;
+            cursor: pointer; outline: none; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23a09a8c' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right .7rem center;
+            background-repeat: no-repeat; background-position: right .7rem center;
             transition: border-color .2s;
         }
-
-        .filter-select:focus {
-            border-color: var(--gold);
-        }
+        .filter-select:focus { border-color: var(--gold); }
 
         /* ─────────────────────────── Buttons ─────────────────────────── */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: .4rem;
-            font-family: var(--sans);
-            font-weight: 600;
-            font-size: .86rem;
-            letter-spacing: -.01em;
-            padding: .62rem 1.1rem;
-            border-radius: var(--radius-sm);
-            border: 1px solid transparent;
-            cursor: pointer;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: .4rem; font-family: var(--sans); font-weight: 600;
+            font-size: .86rem; letter-spacing: -.01em; padding: .62rem 1.1rem;
+            border-radius: var(--radius-sm); border: 1px solid transparent;
+            cursor: pointer; white-space: nowrap;
             transition: transform .1s, background .18s, color .18s, border-color .18s, box-shadow .18s;
         }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
+        .btn:active { transform: translateY(1px); }
         .btn-primary {
-            background: var(--gold);
-            color: #1a1508;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+            background: var(--gold); color: #1a1508;
+            box-shadow: 0 1px 3px rgba(0,0,0,.4);
         }
-
-        .btn-primary:hover {
-            background: var(--gold-deep);
-        }
-
-        .btn-secondary {
-            background: var(--card);
-            color: var(--ink);
-            border-color: var(--line-2);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--gold);
-            background: #222;
-            color: var(--gold);
-        }
-
-        .btn-danger {
-            background: var(--red-soft);
-            color: var(--red);
-            border-color: transparent;
-        }
-
-        .btn-danger:hover {
-            background: var(--red);
-            color: #fff;
-        }
-
-        .btn-info {
-            background: var(--blue);
-            color: #fff;
-        }
-
-        .btn-sm {
-            padding: .42rem .8rem;
-            font-size: .8rem;
-        }
+        .btn-primary:hover { background: var(--gold-deep); }
+        .btn-secondary { background: var(--card); color: var(--ink); border-color: var(--line-2); }
+        .btn-secondary:hover { border-color: var(--gold); background: #222; color: var(--gold); }
+        .btn-danger { background: var(--red-soft); color: var(--red); border-color: transparent; }
+        .btn-danger:hover { background: var(--red); color: #fff; }
+        .btn-info { background: var(--blue); color: #fff; }
+        .btn-sm { padding: .42rem .8rem; font-size: .8rem; }
 
         /* ─────────────────────────── Empty state ─────────────────────────── */
         .no-orders {
-            text-align: center;
-            padding: 4rem 1rem;
-            color: var(--muted);
-            background: var(--card);
-            border: 1px dashed var(--line-2);
+            text-align: center; padding: 4rem 1rem; color: var(--muted);
+            background: var(--card); border: 1px dashed var(--line-2);
             border-radius: var(--radius);
         }
-
-        .no-orders svg {
-            color: var(--faint);
-        }
-
-        .no-orders p:last-child {
-            margin-top: .5rem;
-            font-size: .9rem;
-        }
+        .no-orders svg { color: var(--faint); }
+        .no-orders p:last-child { margin-top: .5rem; font-size: .9rem; }
 
         /* ─────────────────────────── Product grid ─────────────────────────── */
         .products-grid-admin {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
             gap: 16px;
         }
-
         .product-card-admin {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            overflow: hidden;
+            background: var(--card); border: 1px solid var(--line);
+            border-radius: var(--radius); overflow: hidden;
             transition: border-color .18s, box-shadow .18s, transform .18s;
         }
-
         .product-card-admin:hover {
             border-color: var(--line-2);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
+            box-shadow: 0 6px 20px rgba(0,0,0,.4);
             transform: translateY(-2px);
         }
-
         .product-card-admin img {
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            background: var(--canvas);
-            display: block;
+            width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+            background: var(--canvas); display: block;
         }
-
-        .product-card-admin .pc-body {
-            padding: .95rem 1rem 1.1rem;
-        }
-
+        .product-card-admin .pc-body { padding: .95rem 1rem 1.1rem; }
         .product-card-admin .pc-cat {
-            display: inline-block;
-            font-size: .64rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .09em;
-            color: var(--gold-deep);
-            background: var(--gold-soft);
-            padding: .2rem .5rem;
-            border-radius: 5px;
-            margin-bottom: .55rem;
+            display: inline-block; font-size: .64rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .09em;
+            color: var(--gold-deep); background: var(--gold-soft);
+            padding: .2rem .5rem; border-radius: 5px; margin-bottom: .55rem;
         }
-
         .product-card-admin .pc-name {
-            font-size: .95rem;
-            font-weight: 700;
-            color: var(--ink);
-            line-height: 1.3;
-            margin-bottom: .35rem;
-            letter-spacing: -.01em;
+            font-size: .95rem; font-weight: 700; color: var(--ink);
+            line-height: 1.3; margin-bottom: .35rem; letter-spacing: -.01em;
         }
-
         .product-card-admin .pc-price {
-            font-size: .92rem;
-            font-weight: 600;
-            color: var(--text);
-            font-family: var(--mono);
-            letter-spacing: -.02em;
+            font-size: .92rem; font-weight: 600; color: var(--text);
+            font-family: var(--mono); letter-spacing: -.02em;
         }
-
-        .product-card-admin .pc-stock {
-            font-size: .8rem;
-            color: var(--muted);
-        }
-
+        .product-card-admin .pc-stock { font-size: .8rem; color: var(--muted); }
         .product-card-admin .pc-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: .85rem !important;
-            padding-top: .85rem;
-            border-top: 1px solid var(--line);
+            display: flex; gap: 8px; margin-top: .85rem !important;
+            padding-top: .85rem; border-top: 1px solid var(--line);
         }
-
-        .product-card-admin .pc-actions .btn {
-            flex: 1;
-        }
+        .product-card-admin .pc-actions .btn { flex: 1; }
 
         /* ─────────────────────────── Modal ─────────────────────────── */
         .modal {
-            position: fixed;
-            inset: 0;
-            z-index: 500;
-            background: rgba(0, 0, 0, .65);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            backdrop-filter: blur(3px);
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,.65);
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem; backdrop-filter: blur(3px);
             animation: fade .2s ease;
         }
-
         .modal-content {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            width: 100%;
-            max-width: 540px;
-            max-height: 92vh;
-            overflow-y: auto;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, .6);
+            background: var(--panel); border: 1px solid var(--line);
+            border-radius: 16px; width: 100%; max-width: 540px;
+            max-height: 92vh; overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0,0,0,.6);
         }
-
         .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.35rem 1.6rem;
-            border-bottom: 1px solid var(--line);
-            position: sticky;
-            top: 0;
-            background: var(--panel);
-            z-index: 1;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.35rem 1.6rem; border-bottom: 1px solid var(--line);
+            position: sticky; top: 0; background: var(--panel); z-index: 1;
         }
-
         .modal-header h2 {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--ink);
+            font-size: 1.15rem; font-weight: 800; color: var(--ink);
             letter-spacing: -.02em;
         }
-
         .modal-close {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: 1px solid var(--line-2);
-            background: var(--card);
-            color: var(--muted);
-            font-size: 1.3rem;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .15s, color .15s, border-color .15s;
+            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line-2);
+            background: var(--card); color: var(--muted); font-size: 1.3rem;
+            line-height: 1; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: background .15s, color .15s, border-color .15s;
         }
+        .modal-close:hover { background: var(--red-soft); color: var(--red); border-color: transparent; }
+        .modal-body { padding: 1.6rem; }
 
-        .modal-close:hover {
-            background: var(--red-soft);
-            color: var(--red);
-            border-color: transparent;
-        }
-
-        .modal-body {
-            padding: 1.6rem;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.1rem;
-        }
-
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.1rem; }
         .form-group label {
-            display: block;
-            font-size: .72rem;
-            color: var(--muted);
-            margin-bottom: .45rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .08em;
+            display: block; font-size: .72rem; color: var(--muted);
+            margin-bottom: .45rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .08em;
         }
-
         .form-group input,
         .form-group select,
         .form-group textarea {
-            width: 100%;
-            padding: .72rem .9rem;
-            background: var(--canvas);
-            border: 1px solid var(--line-2);
-            border-radius: var(--radius-sm);
-            color: var(--ink);
-            font-size: .92rem;
-            font-family: var(--sans);
-            outline: none;
+            width: 100%; padding: .72rem .9rem;
+            background: var(--canvas); border: 1px solid var(--line-2);
+            border-radius: var(--radius-sm); color: var(--ink);
+            font-size: .92rem; font-family: var(--sans); outline: none;
             transition: border-color .2s, box-shadow .2s;
         }
-
-        .form-group select {
-            appearance: none;
-            cursor: pointer;
+        .form-group select { appearance: none; cursor: pointer;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23a09a8c' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right .8rem center;
-            padding-right: 2rem;
-        }
-
+            background-repeat: no-repeat; background-position: right .8rem center; padding-right: 2rem; }
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201, 168, 76, .22);
+            border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.22);
         }
+        .form-group textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+        .form-group input[type=number] { font-family: var(--mono); }
 
-        .form-group textarea {
-            min-height: 90px;
-            resize: vertical;
-            line-height: 1.5;
-        }
+        #drop-zone { border: 2px dashed var(--line-2) !important; background: var(--canvas); }
+        #drop-zone:hover { border-color: var(--gold) !important; }
+        #drop-zone.dragover { border-color: var(--gold) !important; background: var(--gold-soft); }
+        #drop-zone svg { color: var(--gold-deep); }
+        #img-preview { border: 1px solid var(--line-2) !important; }
 
-        .form-group input[type=number] {
-            font-family: var(--mono);
-        }
-
-        #drop-zone {
-            border: 2px dashed var(--line-2) !important;
-            background: var(--canvas);
-        }
-
-        #drop-zone:hover {
-            border-color: var(--gold) !important;
-        }
-
-        #drop-zone.dragover {
-            border-color: var(--gold) !important;
-            background: var(--gold-soft);
-        }
-
-        #drop-zone svg {
-            color: var(--gold-deep);
-        }
-
-        #img-preview {
-            border: 1px solid var(--line-2) !important;
-        }
+        /* ─────────────────────────── Colour variants ─────────────────────────── */
+        .cv-help { font-size: .76rem; color: var(--muted); margin-bottom: .7rem; }
+        .cv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+        .cv-item { border: 1px solid var(--line-2); border-radius: 10px; padding: .55rem; text-align: center; background: var(--canvas); position: relative; transition: border-color .18s; }
+        .cv-item.has-img { border-color: var(--gold); }
+        .cv-swatch { width: 22px; height: 22px; border-radius: 50%; margin: 0 auto .4rem; border: 1px solid var(--line-2); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+        .cv-label { font-size: .7rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .45rem; }
+        .cv-drop { width: 100%; aspect-ratio: 1/1; border: 1.5px dashed var(--line-2); border-radius: 8px; background: var(--panel); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--faint); overflow: hidden; transition: border-color .18s, background .18s; }
+        .cv-drop:hover { border-color: var(--gold); color: var(--gold); }
+        .cv-drop img { width: 100%; height: 100%; object-fit: cover; }
+        .cv-clear { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 6px; border: none; background: var(--red-soft); color: var(--red); cursor: pointer; font-size: .95rem; line-height: 1; display: none; align-items: center; justify-content: center; padding: 0; }
+        .cv-item.has-img .cv-clear { display: flex; }
+        .cv-size { font-size: .62rem; color: var(--faint); margin-top: .35rem; font-family: var(--mono); min-height: .9em; }
+        .cv-total { font-size: .74rem; color: var(--muted); margin-top: .7rem; font-family: var(--mono); }
+        .cv-total.warn { color: var(--red); font-weight: 600; }
 
         /* ─────────────────────────── Toast ─────────────────────────── */
         #toast {
-            position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
+            position: fixed; bottom: 1.5rem; left: 50%;
             transform: translate(-50%, 200%);
-            background: #242424;
-            color: var(--ink);
+            background: #242424; color: var(--ink);
             border: 1px solid var(--line-2);
-            padding: .8rem 1.3rem;
-            border-radius: 10px;
-            font-size: .88rem;
-            font-weight: 600;
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, .6);
-            opacity: 0;
-            transition: transform .35s cubic-bezier(.6, 0, .2, 1), opacity .35s;
+            padding: .8rem 1.3rem; border-radius: 10px;
+            font-size: .88rem; font-weight: 600; z-index: 2000;
+            display: flex; align-items: center; gap: .5rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,.6);
+            opacity: 0; transition: transform .35s cubic-bezier(.6,0,.2,1), opacity .35s;
             max-width: calc(100% - 3rem);
         }
-
-        #toast.show {
-            transform: translate(-50%, 0);
-            opacity: 1;
-        }
-
-        #toast.success {
-            border-left: 3px solid var(--green);
-        }
-
-        #toast.error {
-            border-left: 3px solid var(--red);
-        }
+        #toast.show { transform: translate(-50%, 0); opacity: 1; }
+        #toast.success { border-left: 3px solid var(--green); }
+        #toast.error { border-left: 3px solid var(--red); }
 
         /* ─────────────────────────── Mobile ─────────────────────────── */
         /* ─────────────────────────── Orders (admin) ─────────────────────────── */
-        .orders-list {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .orders-loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--muted);
-        }
-
-        .order-card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        .order-card.is-new {
-            border-color: var(--gold-line);
-        }
-
-        .order-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            padding: 1rem 1.2rem;
-            border-bottom: 1px solid var(--line);
-            flex-wrap: wrap;
-        }
-
-        .order-head-left {
-            display: flex;
-            align-items: center;
-            gap: .85rem;
-            min-width: 0;
-        }
-
-        .order-cust {
-            min-width: 0;
-        }
-
-        .order-cust-name {
-            font-weight: 700;
-            color: var(--ink);
-            font-size: .95rem;
-        }
-
-        .order-cust-contact {
-            color: var(--muted);
-            font-size: .78rem;
-            font-family: var(--mono);
-            margin-top: 1px;
-        }
-
-        .order-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: .35rem;
-            font-size: .68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            padding: .28rem .6rem;
-            border-radius: 6px;
-            white-space: nowrap;
-        }
-
-        .order-badge.new {
-            background: var(--gold-soft);
-            color: var(--gold);
-        }
-
-        .order-badge.done {
-            background: var(--green-soft);
-            color: var(--green);
-        }
-
-        .order-total-badge {
-            font-family: var(--mono);
-            font-weight: 700;
-            color: var(--ink);
-            font-size: 1rem;
-        }
-
-        .order-body {
-            padding: 1rem 1.2rem;
-        }
-
-        .order-items-admin {
-            display: flex;
-            flex-direction: column;
-            gap: .4rem;
-            margin-bottom: .9rem;
-        }
-
-        .order-line {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            font-size: .86rem;
-            color: var(--text);
-        }
-
-        .order-line .oi-q {
-            color: var(--muted);
-            font-family: var(--mono);
-        }
-
-        .order-line .oi-p {
-            font-family: var(--mono);
-            color: var(--ink);
-            white-space: nowrap;
-        }
-
-        .order-addr {
-            font-size: .82rem;
-            color: var(--muted);
-            padding: .7rem 0 0;
-            border-top: 1px dashed var(--line-2);
-            line-height: 1.5;
-        }
-
-        .order-addr strong {
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .order-foot {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: .8rem;
-            padding: .9rem 1.2rem;
-            border-top: 1px solid var(--line);
-            flex-wrap: wrap;
-        }
-
-        .order-date {
-            color: var(--faint);
-            font-size: .74rem;
-            font-family: var(--mono);
-        }
-
-        .order-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .orders-list { display: flex; flex-direction: column; gap: 14px; }
+        .orders-loading { text-align: center; padding: 3rem; color: var(--muted); }
+        .order-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+        .order-card.is-new { border-color: var(--gold-line); }
+        .order-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+        .order-head-left { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+        .order-cust { min-width: 0; }
+        .order-cust-name { font-weight: 700; color: var(--ink); font-size: .95rem; }
+        .order-cust-contact { color: var(--muted); font-size: .78rem; font-family: var(--mono); margin-top: 1px; }
+        .order-badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: .28rem .6rem; border-radius: 6px; white-space: nowrap; }
+        .order-badge.new { background: var(--gold-soft); color: var(--gold); }
+        .order-badge.done { background: var(--green-soft); color: var(--green); }
+        .order-total-badge { font-family: var(--mono); font-weight: 700; color: var(--ink); font-size: 1rem; }
+        .order-body { padding: 1rem 1.2rem; }
+        .order-items-admin { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .9rem; }
+        .order-line { display: flex; justify-content: space-between; gap: 1rem; font-size: .86rem; color: var(--text); }
+        .order-line .oi-q { color: var(--muted); font-family: var(--mono); }
+        .order-line .oi-p { font-family: var(--mono); color: var(--ink); white-space: nowrap; }
+        .order-addr { font-size: .82rem; color: var(--muted); padding: .7rem 0 0; border-top: 1px dashed var(--line-2); line-height: 1.5; }
+        .order-addr strong { color: var(--text); font-weight: 600; }
+        .order-foot { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .9rem 1.2rem; border-top: 1px solid var(--line); flex-wrap: wrap; }
+        .order-date { color: var(--faint); font-size: .74rem; font-family: var(--mono); }
+        .order-actions { display: flex; gap: 8px; }
 
         /* ─────────────────────────── Reviews (admin) ─────────────────────────── */
-        .rvadmin-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 14px;
-        }
-
-        .rvadmin-loading {
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 3rem;
-            color: var(--muted);
-        }
-
-        .rvadmin-card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            padding: 1.3rem;
-            position: relative;
-        }
-
-        .rvadmin-top {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            margin-bottom: .7rem;
-        }
-
-        .rvadmin-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--gold-soft);
-            color: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: .95rem;
-            flex-shrink: 0;
-        }
-
-        .rvadmin-meta {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .rvadmin-name {
-            font-weight: 700;
-            color: var(--ink);
-            font-size: .9rem;
-        }
-
-        .rvadmin-email {
-            color: var(--muted);
-            font-size: .76rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .rvadmin-stars {
-            display: inline-flex;
-            gap: 2px;
-            margin-bottom: .5rem;
-        }
-
-        .rvadmin-stars svg {
-            width: 15px;
-            height: 15px;
-        }
-
-        .rvadmin-stars .sf {
-            color: var(--gold);
-        }
-
-        .rvadmin-stars .se {
-            color: var(--line-2);
-        }
-
-        .rvadmin-text {
-            color: var(--text);
-            font-size: .88rem;
-            line-height: 1.55;
-        }
-
-        .rvadmin-date {
-            color: var(--faint);
-            font-size: .72rem;
-            margin-top: .7rem;
-            font-family: var(--mono);
-        }
-
-        .rvadmin-del {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 28px;
-            height: 28px;
-            border-radius: 7px;
-            border: 1px solid var(--line-2);
-            background: var(--card);
-            color: var(--muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .15s, color .15s, border-color .15s;
-        }
-
-        .rvadmin-del:hover {
-            background: var(--red-soft);
-            color: var(--red);
-            border-color: transparent;
-        }
+        .rvadmin-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+        .rvadmin-loading { grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--muted); }
+        .rvadmin-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; position: relative; }
+        .rvadmin-top { display: flex; align-items: center; gap: .75rem; margin-bottom: .7rem; }
+        .rvadmin-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold-soft); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .95rem; flex-shrink: 0; }
+        .rvadmin-meta { flex: 1; min-width: 0; }
+        .rvadmin-name { font-weight: 700; color: var(--ink); font-size: .9rem; }
+        .rvadmin-email { color: var(--muted); font-size: .76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rvadmin-stars { display: inline-flex; gap: 2px; margin-bottom: .5rem; }
+        .rvadmin-stars svg { width: 15px; height: 15px; }
+        .rvadmin-stars .sf { color: var(--gold); }
+        .rvadmin-stars .se { color: var(--line-2); }
+        .rvadmin-text { color: var(--text); font-size: .88rem; line-height: 1.55; }
+        .rvadmin-date { color: var(--faint); font-size: .72rem; margin-top: .7rem; font-family: var(--mono); }
+        .rvadmin-del { position: absolute; top: 1rem; right: 1rem; width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--line-2); background: var(--card); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s, border-color .15s; }
+        .rvadmin-del:hover { background: var(--red-soft); color: var(--red); border-color: transparent; }
 
         /* ─────────────────────────── Customers table ─────────────────────────── */
-        .cust-table-wrap {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            overflow: hidden;
-            overflow-x: auto;
-        }
-
-        .cust-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .88rem;
-        }
-
-        .cust-table th {
-            text-align: left;
-            padding: .85rem 1.1rem;
-            font-size: .68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .09em;
-            color: var(--muted);
-            border-bottom: 1px solid var(--line);
-            background: var(--panel);
-            white-space: nowrap;
-        }
-
-        .cust-table td {
-            padding: .9rem 1.1rem;
-            border-bottom: 1px solid var(--line);
-            color: var(--text);
-            vertical-align: middle;
-        }
-
-        .cust-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .cust-table tbody tr:hover {
-            background: rgba(255, 255, 255, .02);
-        }
-
-        .cust-name-cell {
-            display: flex;
-            align-items: center;
-            gap: .65rem;
-        }
-
-        .cust-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--gold-soft);
-            color: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: .8rem;
-            flex-shrink: 0;
-        }
-
-        .cust-name {
-            font-weight: 600;
-            color: var(--ink);
-        }
-
-        .cust-email {
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: .82rem;
-        }
-
-        .cust-date {
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: .82rem;
-            white-space: nowrap;
-        }
-
-        .cust-badge {
-            display: inline-block;
-            font-size: .68rem;
-            font-weight: 700;
-            padding: .18rem .5rem;
-            border-radius: 5px;
-        }
-
-        .cust-badge.yes {
-            background: var(--green-soft);
-            color: var(--green);
-        }
-
-        .cust-badge.no {
-            background: var(--line);
-            color: var(--faint);
-        }
-
-        .cust-loading {
-            text-align: center;
-            padding: 2.5rem;
-            color: var(--muted);
-        }
-
-        .cust-table tbody tr.clickable {
-            cursor: pointer;
-        }
-
-        .cust-orders-count {
-            font-family: var(--mono);
-            font-weight: 600;
-            color: var(--ink);
-        }
-
-        .cust-orders-count.zero {
-            color: var(--faint);
-            font-weight: 400;
-        }
+        .cust-table-wrap { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; overflow-x: auto; }
+        .cust-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+        .cust-table th { text-align: left; padding: .85rem 1.1rem; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--panel); white-space: nowrap; }
+        .cust-table td { padding: .9rem 1.1rem; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
+        .cust-table tr:last-child td { border-bottom: none; }
+        .cust-table tbody tr:hover { background: rgba(255,255,255,.02); }
+        .cust-name-cell { display: flex; align-items: center; gap: .65rem; }
+        .cust-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-soft); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .8rem; flex-shrink: 0; }
+        .cust-name { font-weight: 600; color: var(--ink); }
+        .cust-email { color: var(--muted); font-family: var(--mono); font-size: .82rem; }
+        .cust-date { color: var(--muted); font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
+        .cust-badge { display: inline-block; font-size: .68rem; font-weight: 700; padding: .18rem .5rem; border-radius: 5px; }
+        .cust-badge.yes { background: var(--green-soft); color: var(--green); }
+        .cust-badge.no { background: var(--line); color: var(--faint); }
+        .cust-loading { text-align: center; padding: 2.5rem; color: var(--muted); }
+        .cust-table tbody tr.clickable { cursor: pointer; }
+        .cust-orders-count { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+        .cust-orders-count.zero { color: var(--faint); font-weight: 400; }
 
         /* ── Customer detail modal ── */
-        .cust-detail-body {
-            padding: 0;
-        }
-
-        .cd-header {
-            padding: 1.6rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .cd-avatar {
-            width: 54px;
-            height: 54px;
-            border-radius: 50%;
-            background: var(--gold-soft);
-            color: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-        }
-
-        .cd-id {
-            min-width: 0;
-        }
-
-        .cd-name {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--ink);
-            letter-spacing: -.01em;
-        }
-
-        .cd-email {
-            color: var(--muted);
-            font-size: .82rem;
-            font-family: var(--mono);
-            margin-top: 2px;
-        }
-
-        .cd-joined {
-            color: var(--faint);
-            font-size: .76rem;
-            margin-top: 3px;
-        }
-
-        .cd-section {
-            padding: 1.3rem 1.6rem;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .cd-section:last-child {
-            border-bottom: none;
-        }
-
-        .cd-section-head {
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            margin-bottom: 1rem;
-        }
-
-        .cd-section-head h3 {
-            font-size: .82rem;
-            font-weight: 700;
-            color: var(--ink);
-            text-transform: uppercase;
-            letter-spacing: .08em;
-        }
-
-        .cd-count-pill {
-            font-size: .68rem;
-            font-weight: 700;
-            padding: .12rem .5rem;
-            border-radius: 20px;
-            background: var(--gold-soft);
-            color: var(--gold);
-            font-family: var(--mono);
-        }
-
-        .cd-empty {
-            color: var(--faint);
-            font-size: .86rem;
-            font-style: italic;
-        }
-
+        .cust-detail-body { padding: 0; }
+        .cd-header { padding: 1.6rem; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--line); }
+        .cd-avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--gold-soft); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; flex-shrink: 0; }
+        .cd-id { min-width: 0; }
+        .cd-name { font-size: 1.15rem; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+        .cd-email { color: var(--muted); font-size: .82rem; font-family: var(--mono); margin-top: 2px; }
+        .cd-joined { color: var(--faint); font-size: .76rem; margin-top: 3px; }
+        .cd-section { padding: 1.3rem 1.6rem; border-bottom: 1px solid var(--line); }
+        .cd-section:last-child { border-bottom: none; }
+        .cd-section-head { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+        .cd-section-head h3 { font-size: .82rem; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: .08em; }
+        .cd-count-pill { font-size: .68rem; font-weight: 700; padding: .12rem .5rem; border-radius: 20px; background: var(--gold-soft); color: var(--gold); font-family: var(--mono); }
+        .cd-empty { color: var(--faint); font-size: .86rem; font-style: italic; }
         /* mini order rows in detail */
-        .cd-order {
-            background: var(--canvas);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: .9rem 1rem;
-            margin-bottom: .7rem;
-        }
-
-        .cd-order:last-child {
-            margin-bottom: 0;
-        }
-
-        .cd-order-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: .8rem;
-            margin-bottom: .5rem;
-        }
-
-        .cd-order-date {
-            color: var(--muted);
-            font-size: .74rem;
-            font-family: var(--mono);
-        }
-
-        .cd-order-right {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-        }
-
-        .cd-order-total {
-            font-family: var(--mono);
-            font-weight: 700;
-            color: var(--ink);
-            font-size: .9rem;
-        }
-
-        .cd-order-items {
-            display: flex;
-            flex-direction: column;
-            gap: .25rem;
-        }
-
-        .cd-order-line {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            font-size: .82rem;
-            color: var(--text);
-        }
-
-        .cd-order-line .oi-q {
-            color: var(--muted);
-            font-family: var(--mono);
-        }
-
-        .cd-order-addr {
-            color: var(--muted);
-            font-size: .78rem;
-            margin-top: .5rem;
-            padding-top: .5rem;
-            border-top: 1px dashed var(--line-2);
-        }
-
+        .cd-order { background: var(--canvas); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; margin-bottom: .7rem; }
+        .cd-order:last-child { margin-bottom: 0; }
+        .cd-order-top { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-bottom: .5rem; }
+        .cd-order-date { color: var(--muted); font-size: .74rem; font-family: var(--mono); }
+        .cd-order-right { display: flex; align-items: center; gap: .6rem; }
+        .cd-order-total { font-family: var(--mono); font-weight: 700; color: var(--ink); font-size: .9rem; }
+        .cd-order-items { display: flex; flex-direction: column; gap: .25rem; }
+        .cd-order-line { display: flex; justify-content: space-between; gap: 1rem; font-size: .82rem; color: var(--text); }
+        .cd-order-line .oi-q { color: var(--muted); font-family: var(--mono); }
+        .cd-order-addr { color: var(--muted); font-size: .78rem; margin-top: .5rem; padding-top: .5rem; border-top: 1px dashed var(--line-2); }
         /* review in detail */
-        .cd-review-stars {
-            display: inline-flex;
-            gap: 2px;
-            margin-bottom: .5rem;
-        }
-
-        .cd-review-stars svg {
-            width: 15px;
-            height: 15px;
-        }
-
-        .cd-review-stars .sf {
-            color: var(--gold);
-        }
-
-        .cd-review-stars .se {
-            color: var(--line-2);
-        }
-
-        .cd-review-text {
-            color: var(--text);
-            font-size: .88rem;
-            line-height: 1.55;
-        }
-
-        .cd-review-date {
-            color: var(--faint);
-            font-size: .72rem;
-            font-family: var(--mono);
-            margin-top: .5rem;
-        }
+        .cd-review-stars { display: inline-flex; gap: 2px; margin-bottom: .5rem; }
+        .cd-review-stars svg { width: 15px; height: 15px; }
+        .cd-review-stars .sf { color: var(--gold); }
+        .cd-review-stars .se { color: var(--line-2); }
+        .cd-review-text { color: var(--text); font-size: .88rem; line-height: 1.55; }
+        .cd-review-date { color: var(--faint); font-size: .72rem; font-family: var(--mono); margin-top: .5rem; }
 
         @media (max-width: 860px) {
-            :root {
-                --sidebar-w: 0px;
-            }
-
+            :root { --sidebar-w: 0px; }
             /* Stack: header bar on top, content below (was side-by-side flex) */
-            #admin-panel {
-                display: block;
-            }
-
+            #admin-panel { display: block; }
             .admin-header {
-                position: sticky;
-                top: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: auto;
-                bottom: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--line);
+                position: sticky; top: 0; left: 0; right: 0;
+                width: 100%; height: auto; bottom: auto;
+                border-right: none; border-bottom: 1px solid var(--line);
             }
-
             .admin-header-content {
-                flex-direction: row;
-                align-items: center;
-                padding: .7rem 1rem;
-                gap: .75rem;
-                height: auto;
+                flex-direction: row; align-items: center;
+                padding: .7rem 1rem; gap: .75rem; height: auto;
             }
-
             .admin-logo {
-                border: none;
-                margin: 0;
-                padding: 0;
-                flex: 1;
-                min-width: 0;
-                gap: .5rem;
+                border: none; margin: 0; padding: 0;
+                flex: 1; min-width: 0; gap: .5rem;
             }
-
-            .admin-logo .logo-img {
-                height: 30px;
-            }
-
-            .admin-logo span {
-                display: none;
-            }
-
-            .side-label {
-                display: none;
-            }
-
-            .side-nav {
-                flex-direction: row;
-                gap: 4px;
-            }
-
-            .admin-tab-btn {
-                padding: .5rem .85rem;
-                font-size: .85rem;
-            }
-
-            .admin-tab-btn.active::before {
-                display: none;
-            }
-
+            .admin-logo .logo-img { height: 30px; }
+            .admin-logo span { display: none; }
+            .side-label { display: none; }
+            .side-nav { flex-direction: row; gap: 4px; }
+            .admin-tab-btn { padding: .5rem .85rem; font-size: .85rem; }
+            .admin-tab-btn.active::before { display: none; }
             .side-foot {
-                margin: 0;
-                padding: 0;
-                border: none;
-                flex-direction: row;
-                gap: 2px;
+                margin: 0; padding: 0; border: none;
+                flex-direction: row; gap: 2px;
             }
-
-            .side-link .side-link-text {
-                display: none;
-            }
-
-            .side-link {
-                padding: .55rem;
-            }
-
+            .side-link .side-link-text { display: none; }
+            .side-link { padding: .55rem; }
             .admin-main {
-                margin-left: 0;
-                max-width: 100%;
+                margin-left: 0; max-width: 100%;
                 padding: 1.35rem 1rem 3rem;
             }
-
-            .page-head {
-                flex-wrap: wrap;
-            }
-
-            .page-head h1 {
-                font-size: 1.35rem;
-            }
-
-            .admin-stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-
-            .admin-controls {
-                gap: 10px;
-            }
-
-            .setting-chip {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .search-filter {
-                min-width: 100%;
-                order: 3;
-            }
-
-            .products-grid-admin {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
+            .page-head { flex-wrap: wrap; }
+            .page-head h1 { font-size: 1.35rem; }
+            .admin-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .admin-controls { gap: 10px; }
+            .setting-chip { flex: 1; min-width: 0; }
+            .search-filter { min-width: 100%; order: 3; }
+            .products-grid-admin { grid-template-columns: repeat(2, 1fr); gap: 12px; }
         }
-
         @media (max-width: 480px) {
-            .admin-header-content {
-                padding: .6rem .8rem;
-                gap: .5rem;
-            }
-
-            .admin-tab-btn {
-                padding: .5rem .7rem;
-            }
-
+            .admin-header-content { padding: .6rem .8rem; gap: .5rem; }
+            .admin-tab-btn { padding: .5rem .7rem; }
             .admin-tab-btn span,
-            .admin-tab-btn {
-                font-size: .82rem;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-stats {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: .9rem 1rem;
-            }
-
-            .stat-card p {
-                font-size: 1.4rem;
-            }
-
-            .page-head .btn {
-                font-size: .82rem;
-                padding: .55rem .9rem;
-            }
-
-            .products-grid-admin {
-                gap: 10px;
-            }
-
-            .product-card-admin .pc-name {
-                font-size: .88rem;
-            }
-
-            .product-card-admin .pc-actions {
-                flex-direction: column;
-                gap: 6px;
-            }
+            .admin-tab-btn { font-size: .82rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .admin-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: .9rem 1rem; }
+            .stat-card p { font-size: 1.4rem; }
+            .page-head .btn { font-size: .82rem; padding: .55rem .9rem; }
+            .products-grid-admin { gap: 10px; }
+            .product-card-admin .pc-name { font-size: .88rem; }
+            .product-card-admin .pc-actions { flex-direction: column; gap: 6px; }
         }
+
     </style>
 </head>
 
@@ -1769,51 +705,15 @@
 
                 <nav class="side-nav">
                     <div class="side-label">Manage</div>
-                    <button class="admin-tab-btn active" onclick="switchTab('products')"><svg
-                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"
-                            fill="currentColor">
-                            <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" fill="none" stroke="currentColor"
-                                stroke-width="1.6" stroke-linejoin="round" />
-                            <path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6"
-                                stroke-linejoin="round" />
-                        </svg> Products</button>
-                    <button class="admin-tab-btn" onclick="switchTab('orders')"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                            <path d="M6 8h12l-1 12a1 1 0 0 1-1 .9H8a1 1 0 0 1-1-.9L6 8z" fill="none"
-                                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                            <path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"
-                                stroke-linecap="round" />
-                        </svg> Orders</button>
-                    <button class="admin-tab-btn" onclick="switchTab('reviews')"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                            <path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 18.6 6.1 21.3l1.2-6.6L2.5 9.5l6.6-.9z"
-                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                        </svg> Reviews</button>
-                    <button class="admin-tab-btn" onclick="switchTab('customers')"><svg
-                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"
-                            fill="currentColor">
-                            <circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6" />
-                            <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" fill="none" stroke="currentColor" stroke-width="1.6"
-                                stroke-linecap="round" />
-                        </svg> Customers</button>
+                    <button class="admin-tab-btn active" onclick="switchTab('products')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Products</button>
+                    <button class="admin-tab-btn" onclick="switchTab('orders')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 8h12l-1 12a1 1 0 0 1-1 .9H8a1 1 0 0 1-1-.9L6 8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Orders</button>
+                    <button class="admin-tab-btn" onclick="switchTab('reviews')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 18.6 6.1 21.3l1.2-6.6L2.5 9.5l6.6-.9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg> Reviews</button>
+                    <button class="admin-tab-btn" onclick="switchTab('customers')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Customers</button>
                 </nav>
 
                 <div class="side-foot">
-                    <a class="side-link" href="index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                            <path d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0z" fill="none" stroke="currentColor"
-                                stroke-width="1.6" />
-                            <path d="M4 12h16M12 4c2.5 2.5 2.5 13 0 16M12 4c-2.5 2.5-2.5 13 0 16" fill="none"
-                                stroke="currentColor" stroke-width="1.6" />
-                        </svg> <span class="side-link-text">View store</span></a>
-                    <button class="side-link danger" onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                            <path
-                                d="M14 8V5.5a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h6a1.5 1.5 0 0 0 1.5-1.5V16"
-                                fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            <path d="M10 12h10m0 0l-3-3m3 3l-3 3" fill="none" stroke="currentColor" stroke-width="1.6"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg> <span class="side-link-text">Logout</span></button>
+                    <a class="side-link" href="index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 12h16M12 4c2.5 2.5 2.5 13 0 16M12 4c-2.5 2.5-2.5 13 0 16" fill="none" stroke="currentColor" stroke-width="1.6"/></svg> <span class="side-link-text">View store</span></a>
+                    <button class="side-link danger" onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M14 8V5.5a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h6a1.5 1.5 0 0 0 1.5-1.5V16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 12h10m0 0l-3-3m3 3l-3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="side-link-text">Logout</span></button>
                 </div>
             </div>
         </header>
@@ -1829,10 +729,7 @@
                         <h1>Products</h1>
                         <p>Manage your storefront catalogue</p>
                     </div>
-                    <button class="btn btn-primary" onclick="openAddProduct()"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg> Add product</button>
+                    <button class="btn btn-primary" onclick="openAddProduct()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add product</button>
                 </div>
 
                 <div class="admin-stats">
@@ -1847,9 +744,7 @@
                     </div>
                     <div class="stat-card">
                         <h3>Latest added</h3>
-                        <p id="stat-latest"
-                            style="font-size:1rem;font-family:var(--sans);font-weight:700;letter-spacing:-.01em;padding-top:.35rem">
-                            —</p>
+                        <p id="stat-latest" style="font-size:1rem;font-family:var(--sans);font-weight:700;letter-spacing:-.01em;padding-top:.35rem">—</p>
                     </div>
                     <div class="stat-card accent">
                         <h3>Homepage shows</h3>
@@ -1881,24 +776,14 @@
                             <option value="other">Other</option>
                         </select>
                     </div>
-                    <button class="btn btn-secondary" onclick="loadProducts()"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
-                            <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor"
-                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg> Refresh</button>
+                    <button class="btn btn-secondary" onclick="loadProducts()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh</button>
                 </div>
 
                 <div id="products-grid" class="products-grid-admin">
                     <!-- cards injected by JS -->
                 </div>
                 <div id="no-products" class="no-orders hidden">
-                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40"
-                            fill="currentColor">
-                            <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" fill="none" stroke="currentColor"
-                                stroke-width="1.4" stroke-linejoin="round" />
-                            <path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.4"
-                                stroke-linejoin="round" />
-                        </svg></p>
+                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></p>
                     <p>No products yet. Add your first product to get started.</p>
                 </div>
             </div>
@@ -1910,11 +795,7 @@
                         <h1>Orders</h1>
                         <p>Customer orders placed through checkout</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="loadOrders()"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
-                            <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor"
-                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg> Refresh</button>
+                    <button class="btn btn-secondary" onclick="loadOrders()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh</button>
                 </div>
 
                 <div class="admin-stats">
@@ -1938,13 +819,7 @@
                     <div class="orders-loading">Loading orders…</div>
                 </div>
                 <div id="no-orders-msg" class="no-orders hidden">
-                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40"
-                            fill="currentColor">
-                            <path d="M6 8h12l-1 12a1 1 0 0 1-1 .9H8a1 1 0 0 1-1-.9L6 8z" fill="none"
-                                stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
-                            <path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3"
-                                stroke-linecap="round" />
-                        </svg></p>
+                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M6 8h12l-1 12a1 1 0 0 1-1 .9H8a1 1 0 0 1-1-.9L6 8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></p>
                     <p>No orders yet.</p>
                 </div>
             </div>
@@ -1956,11 +831,7 @@
                         <h1>Reviews</h1>
                         <p>Customer ratings and feedback</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="loadReviews()"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
-                            <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor"
-                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg> Refresh</button>
+                    <button class="btn btn-secondary" onclick="loadReviews()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh</button>
                 </div>
 
                 <div class="admin-stats">
@@ -1984,11 +855,7 @@
                     <div class="rvadmin-loading">Loading reviews…</div>
                 </div>
                 <div id="no-reviews" class="no-orders hidden">
-                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40"
-                            fill="currentColor">
-                            <path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 18.6 6.1 21.3l1.2-6.6L2.5 9.5l6.6-.9z"
-                                fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
-                        </svg></p>
+                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 18.6 6.1 21.3l1.2-6.6L2.5 9.5l6.6-.9z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></p>
                     <p>No reviews yet.</p>
                 </div>
             </div>
@@ -2000,11 +867,7 @@
                         <h1>Customers</h1>
                         <p>Registered store accounts</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="loadCustomers()"><svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
-                            <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor"
-                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg> Refresh</button>
+                    <button class="btn btn-secondary" onclick="loadCustomers()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh</button>
                 </div>
 
                 <div class="admin-stats">
@@ -2014,39 +877,23 @@
                     </div>
                     <div class="stat-card">
                         <h3>Newest signup</h3>
-                        <p id="stat-newest-customer"
-                            style="font-size:1rem;font-family:var(--sans);font-weight:700;letter-spacing:-.01em;padding-top:.35rem">
-                            —</p>
+                        <p id="stat-newest-customer" style="font-size:1rem;font-family:var(--sans);font-weight:700;letter-spacing:-.01em;padding-top:.35rem">—</p>
                     </div>
                 </div>
 
-                <p style="font-size:.8rem;color:var(--muted);margin:-.4rem 0 1rem">Click a customer to see their orders
-                    and review.</p>
+                <p style="font-size:.8rem;color:var(--muted);margin:-.4rem 0 1rem">Click a customer to see their orders and review.</p>
                 <div class="cust-table-wrap">
                     <table class="cust-table" id="customers-table">
                         <thead>
-                            <tr>
-                                <th>Customer</th>
-                                <th>Email</th>
-                                <th>Joined</th>
-                                <th>Orders</th>
-                                <th>Reviewed</th>
-                            </tr>
+                            <tr><th>Customer</th><th>Email</th><th>Joined</th><th>Orders</th><th>Reviewed</th></tr>
                         </thead>
                         <tbody id="customers-tbody">
-                            <tr>
-                                <td colspan="5" class="cust-loading">Loading customers…</td>
-                            </tr>
+                            <tr><td colspan="5" class="cust-loading">Loading customers…</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div id="no-customers" class="no-orders hidden">
-                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40"
-                            fill="currentColor">
-                            <circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.4" />
-                            <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" fill="none" stroke="currentColor" stroke-width="1.4"
-                                stroke-linecap="round" />
-                        </svg></p>
+                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></p>
                     <p>No registered customers yet.</p>
                 </div>
             </div>
@@ -2088,16 +935,7 @@
                                 ondragover="event.preventDefault();this.classList.add('dragover')"
                                 ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)"
                                 style="border:2px dashed var(--line-2);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s">
-                                <div style="font-size:1.8rem;margin-bottom:.3rem"><svg
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"
-                                        fill="currentColor" style="display:inline-block;vertical-align:-0.15em">
-                                        <rect x="3" y="4.5" width="18" height="15" rx="2.5" fill="none"
-                                            stroke="currentColor" stroke-width="1.6" />
-                                        <circle cx="8.5" cy="9.5" r="1.6" fill="none" stroke="currentColor"
-                                            stroke-width="1.6" />
-                                        <path d="M4 17l5-4 4 3 3-2.5 4 3.5" fill="none" stroke="currentColor"
-                                            stroke-width="1.6" stroke-linejoin="round" />
-                                    </svg></div>
+                                <div style="font-size:1.8rem;margin-bottom:.3rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><rect x="3" y="4.5" width="18" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="9.5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 17l5-4 4 3 3-2.5 4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
                                 <p style="color:var(--muted);font-size:.85rem;margin:0">Drag &amp; drop or <strong
                                         style="color:var(--gold)">click to upload</strong></p>
                                 <p style="color:var(--muted);font-size:.74rem;margin:.3rem 0 0">JPG, PNG, WEBP — max 800
@@ -2114,6 +952,14 @@
                             style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:.75rem;display:none;border:1px solid var(--line-2)">
                         <input type="hidden" id="img-base64">
                         <input type="hidden" id="product-image-url">
+                    </div>
+
+                    <!-- Colour variants -->
+                    <div class="form-group">
+                        <label>Colours (optional)</label>
+                        <p class="cv-help">Upload an image for each colour this product comes in. Customers pick a colour and the image swaps. Leave blank if it has no colour options.</p>
+                        <div class="cv-grid" id="cv-grid"><!-- built by JS --></div>
+                        <div class="cv-total" id="cv-total"></div>
                     </div>
 
                     <!-- Name & Price -->
@@ -2351,7 +1197,7 @@
                 list.innerHTML = allOrders.map(o => {
                     const isNew = (o.status || 'new') === 'new';
                     const items = (o.items || []).map(i =>
-                        `<div class="order-line"><span>${adminEscape(i.name)} <span class="oi-q">× ${i.quantity}</span></span><span class="oi-p">${fmtMoney(i.price * i.quantity)}</span></div>`
+                        `<div class="order-line"><span>${adminEscape(i.name)}${i.color ? ` <span class="oi-q">(${adminEscape(i.color)})</span>` : ''} <span class="oi-q">× ${i.quantity}</span></span><span class="oi-p">${fmtMoney(i.price * i.quantity)}</span></div>`
                     ).join('');
                     const contact = [o.phone, o.accountEmail].filter(Boolean).map(adminEscape).join(' · ');
                     return `
@@ -2377,9 +1223,9 @@
                             <span class="order-date">${fmtDate(o.createdAt)}</span>
                             <div class="order-actions">
                                 ${isNew
-                            ? `<button class="btn btn-secondary btn-sm" onclick="markOrderDone('${o.id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Mark fulfilled</button>`
-                            : `<button class="btn btn-secondary btn-sm" onclick="markOrderNew('${o.id}')">Reopen</button>`
-                        }
+                                    ? `<button class="btn btn-secondary btn-sm" onclick="markOrderDone('${o.id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Mark fulfilled</button>`
+                                    : `<button class="btn btn-secondary btn-sm" onclick="markOrderNew('${o.id}')">Reopen</button>`
+                                }
                                 <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M5 7h14M6 7l1 12h10l1-12M10 7V5h4v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete</button>
                             </div>
                         </div>
@@ -2583,7 +1429,7 @@
             const ordersHtml = orders.length ? orders.map(o => {
                 const isNew = (o.status || 'new') === 'new';
                 const items = (o.items || []).map(i =>
-                    `<div class="cd-order-line"><span>${adminEscape(i.name)} <span class="oi-q">× ${i.quantity}</span></span><span class="oi-q">${fmtMoney(i.price * i.quantity)}</span></div>`
+                    `<div class="cd-order-line"><span>${adminEscape(i.name)}${i.color ? ` <span class="oi-q">(${adminEscape(i.color)})</span>` : ''} <span class="oi-q">× ${i.quantity}</span></span><span class="oi-q">${fmtMoney(i.price * i.quantity)}</span></div>`
                 ).join('');
                 return `<div class="cd-order">
                     <div class="cd-order-top">
@@ -2705,6 +1551,7 @@
                     document.getElementById('img-base64').value = b64;
                     const prev = document.getElementById('img-preview');
                     prev.src = b64; prev.style.display = 'block';
+                    refreshColorUI();   // main image counts toward the 1 MB budget
                 };
                 img.src = ev.target.result;
             };
@@ -2714,6 +1561,112 @@
             const el = document.getElementById('upload-status');
             el.innerHTML = msg;
             el.style.color = isErr ? 'var(--red)' : 'var(--muted)';
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           COLOUR VARIANTS
+           Stored on the product as:  colors: [{ key, name, imageUrl }]
+           Images are compressed harder than the main one, because a
+           Firestore document is capped at 1 MB total.
+        ═══════════════════════════════════════════════════════════ */
+        const COLOR_OPTIONS = [
+            { key: 'black',  name: 'Black',  hex: '#1a1a1a' },
+            { key: 'white',  name: 'White',  hex: '#f2f0ea' },
+            { key: 'pink',   name: 'Pink',   hex: '#e8799f' },
+            { key: 'blue',   name: 'Blue',   hex: '#3b6fd4' },
+            { key: 'purple', name: 'Purple', hex: '#8657c9' }
+        ];
+        let colorImages = {};   // { black: 'data:image/jpeg;base64,...', ... }
+
+        function buildColorGrid() {
+            const grid = document.getElementById('cv-grid');
+            if (!grid) return;
+            grid.innerHTML = COLOR_OPTIONS.map(c => `
+                <div class="cv-item" id="cv-item-${c.key}">
+                    <button type="button" class="cv-clear" title="Remove image" onclick="clearColorImage('${c.key}')">&times;</button>
+                    <div class="cv-swatch" style="background:${c.hex}"></div>
+                    <div class="cv-label">${c.name}</div>
+                    <div class="cv-drop" id="cv-drop-${c.key}" onclick="document.getElementById('cv-file-${c.key}').click()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <input type="file" id="cv-file-${c.key}" accept="image/*" style="display:none"
+                           onchange="handleColorFile('${c.key}', this)">
+                    <div class="cv-size" id="cv-size-${c.key}"></div>
+                </div>
+            `).join('');
+            refreshColorUI();
+        }
+
+        function handleColorFile(key, input) {
+            const file = input.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            const sizeEl = document.getElementById('cv-size-' + key);
+            sizeEl.textContent = '…';
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Smaller + harder compression: several must fit in one 1 MB doc
+                    const MAX = 700, Q = 0.62;
+                    let w = img.width, h = img.height;
+                    if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const b64 = canvas.toDataURL('image/jpeg', Q);
+                    colorImages[key] = b64;
+                    refreshColorUI();
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearColorImage(key) {
+            delete colorImages[key];
+            const fi = document.getElementById('cv-file-' + key);
+            if (fi) fi.value = '';
+            refreshColorUI();
+        }
+
+        function refreshColorUI() {
+            let total = 0;
+            COLOR_OPTIONS.forEach(c => {
+                const item = document.getElementById('cv-item-' + c.key);
+                const drop = document.getElementById('cv-drop-' + c.key);
+                const size = document.getElementById('cv-size-' + c.key);
+                if (!item || !drop) return;
+                const b64 = colorImages[c.key];
+                if (b64) {
+                    const kb = Math.round(b64.length * 0.75 / 1024);
+                    total += kb;
+                    item.classList.add('has-img');
+                    drop.innerHTML = `<img src="${b64}" alt="${c.name}">`;
+                    size.textContent = kb + ' KB';
+                } else {
+                    item.classList.remove('has-img');
+                    drop.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+                    size.textContent = '';
+                }
+            });
+            // Include the main image in the budget
+            const main = document.getElementById('img-base64').value || document.getElementById('edit-image-url').value || '';
+            const mainKb = main ? Math.round(main.length * 0.75 / 1024) : 0;
+            const grand = total + mainKb;
+            const el = document.getElementById('cv-total');
+            if (!el) return;
+            const n = Object.keys(colorImages).length;
+            if (!n && !mainKb) { el.textContent = ''; return; }
+            const overBudget = grand > 950;   // Firestore doc hard limit is 1 MB
+            el.className = 'cv-total' + (overBudget ? ' warn' : '');
+            el.textContent = `${n} colour${n === 1 ? '' : 's'} · ${grand} KB of 1000 KB used` +
+                (overBudget ? ' — too large, remove a colour or use smaller images' : '');
+        }
+        function colorBudgetExceeded() {
+            const main = document.getElementById('img-base64').value || document.getElementById('edit-image-url').value || '';
+            let total = main ? Math.round(main.length * 0.75 / 1024) : 0;
+            Object.values(colorImages).forEach(b => { total += Math.round(b.length * 0.75 / 1024); });
+            return total > 950;
         }
 
         /* ─── Add / Edit Product Modal ──────────────────────────── */
@@ -2726,6 +1679,8 @@
             document.getElementById('img-preview').style.display = 'none';
             document.getElementById('file-input').value = '';
             setUploadStatus('');
+            colorImages = {};          // no colours on a new product
+            buildColorGrid();
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
@@ -2749,6 +1704,10 @@
             } else {
                 prev.style.display = 'none';
             }
+            // Load this product's existing colour images
+            colorImages = {};
+            (p.colors || []).forEach(c => { if (c && c.key && c.imageUrl) colorImages[c.key] = c.imageUrl; });
+            buildColorGrid();
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
@@ -2781,10 +1740,23 @@
                 return;
             }
 
+            // A Firestore document is capped at 1 MB — block a save that won't fit
+            if (colorBudgetExceeded()) {
+                showToast('Images are too large. Remove a colour or use smaller images.', 'error');
+                btn.disabled = false; btn.textContent = 'Save Product';
+                return;
+            }
+
+            // Colour variants (only the ones with an image), in preset order
+            const colors = COLOR_OPTIONS
+                .filter(c => colorImages[c.key])
+                .map(c => ({ key: c.key, name: c.name, hex: c.hex, imageUrl: colorImages[c.key] }));
+
             try {
                 const data = {
                     name, price, category, description,
                     imageUrl,
+                    colors,
                     updatedAt: adminFb.serverTimestamp()
                 };
 
