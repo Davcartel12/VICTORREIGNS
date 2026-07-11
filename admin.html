@@ -973,6 +973,158 @@
         }
 
         /* ─────────────────────────── Mobile ─────────────────────────── */
+        /* ─────────────────────────── Orders (admin) ─────────────────────────── */
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .orders-loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+        }
+
+        .order-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .order-card.is-new {
+            border-color: var(--gold-line);
+        }
+
+        .order-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--line);
+            flex-wrap: wrap;
+        }
+
+        .order-head-left {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            min-width: 0;
+        }
+
+        .order-cust {
+            min-width: 0;
+        }
+
+        .order-cust-name {
+            font-weight: 700;
+            color: var(--ink);
+            font-size: .95rem;
+        }
+
+        .order-cust-contact {
+            color: var(--muted);
+            font-size: .78rem;
+            font-family: var(--mono);
+            margin-top: 1px;
+        }
+
+        .order-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: .28rem .6rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .order-badge.new {
+            background: var(--gold-soft);
+            color: var(--gold);
+        }
+
+        .order-badge.done {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .order-total-badge {
+            font-family: var(--mono);
+            font-weight: 700;
+            color: var(--ink);
+            font-size: 1rem;
+        }
+
+        .order-body {
+            padding: 1rem 1.2rem;
+        }
+
+        .order-items-admin {
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+            margin-bottom: .9rem;
+        }
+
+        .order-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: .86rem;
+            color: var(--text);
+        }
+
+        .order-line .oi-q {
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .order-line .oi-p {
+            font-family: var(--mono);
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        .order-addr {
+            font-size: .82rem;
+            color: var(--muted);
+            padding: .7rem 0 0;
+            border-top: 1px dashed var(--line-2);
+            line-height: 1.5;
+        }
+
+        .order-addr strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .order-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .8rem;
+            padding: .9rem 1.2rem;
+            border-top: 1px solid var(--line);
+            flex-wrap: wrap;
+        }
+
+        .order-date {
+            color: var(--faint);
+            font-size: .74rem;
+            font-family: var(--mono);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 8px;
+        }
+
         /* ─────────────────────────── Reviews (admin) ─────────────────────────── */
         .rvadmin-list {
             display: grid;
@@ -1193,6 +1345,212 @@
             text-align: center;
             padding: 2.5rem;
             color: var(--muted);
+        }
+
+        .cust-table tbody tr.clickable {
+            cursor: pointer;
+        }
+
+        .cust-orders-count {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .cust-orders-count.zero {
+            color: var(--faint);
+            font-weight: 400;
+        }
+
+        /* ── Customer detail modal ── */
+        .cust-detail-body {
+            padding: 0;
+        }
+
+        .cd-header {
+            padding: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .cd-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--gold-soft);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .cd-id {
+            min-width: 0;
+        }
+
+        .cd-name {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -.01em;
+        }
+
+        .cd-email {
+            color: var(--muted);
+            font-size: .82rem;
+            font-family: var(--mono);
+            margin-top: 2px;
+        }
+
+        .cd-joined {
+            color: var(--faint);
+            font-size: .76rem;
+            margin-top: 3px;
+        }
+
+        .cd-section {
+            padding: 1.3rem 1.6rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .cd-section:last-child {
+            border-bottom: none;
+        }
+
+        .cd-section-head {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cd-section-head h3 {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--ink);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .cd-count-pill {
+            font-size: .68rem;
+            font-weight: 700;
+            padding: .12rem .5rem;
+            border-radius: 20px;
+            background: var(--gold-soft);
+            color: var(--gold);
+            font-family: var(--mono);
+        }
+
+        .cd-empty {
+            color: var(--faint);
+            font-size: .86rem;
+            font-style: italic;
+        }
+
+        /* mini order rows in detail */
+        .cd-order {
+            background: var(--canvas);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: .9rem 1rem;
+            margin-bottom: .7rem;
+        }
+
+        .cd-order:last-child {
+            margin-bottom: 0;
+        }
+
+        .cd-order-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .8rem;
+            margin-bottom: .5rem;
+        }
+
+        .cd-order-date {
+            color: var(--muted);
+            font-size: .74rem;
+            font-family: var(--mono);
+        }
+
+        .cd-order-right {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .cd-order-total {
+            font-family: var(--mono);
+            font-weight: 700;
+            color: var(--ink);
+            font-size: .9rem;
+        }
+
+        .cd-order-items {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+
+        .cd-order-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: .82rem;
+            color: var(--text);
+        }
+
+        .cd-order-line .oi-q {
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .cd-order-addr {
+            color: var(--muted);
+            font-size: .78rem;
+            margin-top: .5rem;
+            padding-top: .5rem;
+            border-top: 1px dashed var(--line-2);
+        }
+
+        /* review in detail */
+        .cd-review-stars {
+            display: inline-flex;
+            gap: 2px;
+            margin-bottom: .5rem;
+        }
+
+        .cd-review-stars svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .cd-review-stars .sf {
+            color: var(--gold);
+        }
+
+        .cd-review-stars .se {
+            color: var(--line-2);
+        }
+
+        .cd-review-text {
+            color: var(--text);
+            font-size: .88rem;
+            line-height: 1.55;
+        }
+
+        .cd-review-date {
+            color: var(--faint);
+            font-size: .72rem;
+            font-family: var(--mono);
+            margin-top: .5rem;
         }
 
         @media (max-width: 860px) {
@@ -1419,6 +1777,13 @@
                             <path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6"
                                 stroke-linejoin="round" />
                         </svg> Products</button>
+                    <button class="admin-tab-btn" onclick="switchTab('orders')"><svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M6 8h12l-1 12a1 1 0 0 1-1 .9H8a1 1 0 0 1-1-.9L6 8z" fill="none"
+                                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                            <path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" />
+                        </svg> Orders</button>
                     <button class="admin-tab-btn" onclick="switchTab('reviews')"><svg xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                             <path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 18.6 6.1 21.3l1.2-6.6L2.5 9.5l6.6-.9z"
@@ -1538,6 +1903,52 @@
                 </div>
             </div>
 
+            <!-- ══ ORDERS TAB ══ -->
+            <div id="orders-section" class="admin-section hidden">
+                <div class="page-head">
+                    <div>
+                        <h1>Orders</h1>
+                        <p>Customer orders placed through checkout</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadOrders()"><svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                            <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor"
+                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg> Refresh</button>
+                </div>
+
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <h3>Total orders</h3>
+                        <p id="stat-total-orders">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>New / pending</h3>
+                        <p id="stat-new-orders">0</p>
+                        <div class="stat-sub">awaiting action</div>
+                    </div>
+                    <div class="stat-card accent">
+                        <h3>Total revenue</h3>
+                        <p id="stat-revenue">0</p>
+                        <div class="stat-sub">fulfilled orders</div>
+                    </div>
+                </div>
+
+                <div id="orders-list" class="orders-list">
+                    <div class="orders-loading">Loading orders…</div>
+                </div>
+                <div id="no-orders-msg" class="no-orders hidden">
+                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40"
+                            fill="currentColor">
+                            <path d="M6 8h12l-1 12a1 1 0 0 1-1 .9H8a1 1 0 0 1-1-.9L6 8z" fill="none"
+                                stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                            <path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3"
+                                stroke-linecap="round" />
+                        </svg></p>
+                    <p>No orders yet.</p>
+                </div>
+            </div>
+
             <!-- ══ REVIEWS TAB ══ -->
             <div id="reviews-section" class="admin-section hidden">
                 <div class="page-head">
@@ -1609,6 +2020,8 @@
                     </div>
                 </div>
 
+                <p style="font-size:.8rem;color:var(--muted);margin:-.4rem 0 1rem">Click a customer to see their orders
+                    and review.</p>
                 <div class="cust-table-wrap">
                     <table class="cust-table" id="customers-table">
                         <thead>
@@ -1616,12 +2029,13 @@
                                 <th>Customer</th>
                                 <th>Email</th>
                                 <th>Joined</th>
+                                <th>Orders</th>
                                 <th>Reviewed</th>
                             </tr>
                         </thead>
                         <tbody id="customers-tbody">
                             <tr>
-                                <td colspan="4" class="cust-loading">Loading customers…</td>
+                                <td colspan="5" class="cust-loading">Loading customers…</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1640,6 +2054,19 @@
     </div>
 
     <!-- ══════════════════ ADD / EDIT PRODUCT MODAL ══════════════════ -->
+    <!-- ══ CUSTOMER DETAIL MODAL ══ -->
+    <div id="customer-modal" class="modal hidden" onclick="if(event.target===this)closeCustomerModal()">
+        <div class="modal-content" style="max-width:560px">
+            <div class="modal-header">
+                <h2>Customer</h2>
+                <button class="modal-close" onclick="closeCustomerModal()">&times;</button>
+            </div>
+            <div class="cust-detail-body" id="customer-detail-body">
+                <!-- filled by JS -->
+            </div>
+        </div>
+    </div>
+
     <div id="product-modal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -1835,6 +2262,7 @@
             document.getElementById(tab + '-section').classList.remove('hidden');
             event.currentTarget.classList.add('active');
             if (tab === 'products') loadProducts();
+            else if (tab === 'orders') loadOrders();
             else if (tab === 'reviews') loadReviews();
             else if (tab === 'customers') loadCustomers();
         }
@@ -1884,6 +2312,109 @@
         function updateFrontpageStat(val) {
             const el = document.getElementById('stat-frontpage');
             if (el) el.textContent = val === 'ticker' ? 'New Arrivals' : 'Featured';
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ORDERS
+        ═══════════════════════════════════════════════════════════ */
+        function fmtMoney(n) {
+            return (Number(n) || 0).toLocaleString('fr-FR') + ' FCFA';
+        }
+
+        let allOrders = [];
+        async function loadOrders() {
+            if (!adminDb) { showToast('Firebase not ready yet', 'error'); return; }
+            const list = document.getElementById('orders-list');
+            const empty = document.getElementById('no-orders-msg');
+            list.innerHTML = '<div class="orders-loading">Loading orders…</div>';
+            empty.classList.add('hidden');
+            try {
+                const q = adminFb.query(adminFb.collection(adminDb, 'orders'), adminFb.orderBy('createdAt', 'desc'));
+                const snap = await adminFb.getDocs(q);
+                allOrders = [];
+                snap.forEach(d => allOrders.push({ id: d.id, ...d.data() }));
+
+                // stats
+                document.getElementById('stat-total-orders').textContent = allOrders.length;
+                document.getElementById('stat-new-orders').textContent =
+                    allOrders.filter(o => (o.status || 'new') === 'new').length;
+                const revenue = allOrders
+                    .filter(o => o.status === 'done')
+                    .reduce((a, o) => a + (Number(o.total) || 0), 0);
+                document.getElementById('stat-revenue').textContent = fmtMoney(revenue);
+
+                if (!allOrders.length) {
+                    list.innerHTML = '';
+                    empty.classList.remove('hidden');
+                    return;
+                }
+                list.innerHTML = allOrders.map(o => {
+                    const isNew = (o.status || 'new') === 'new';
+                    const items = (o.items || []).map(i =>
+                        `<div class="order-line"><span>${adminEscape(i.name)} <span class="oi-q">× ${i.quantity}</span></span><span class="oi-p">${fmtMoney(i.price * i.quantity)}</span></div>`
+                    ).join('');
+                    const contact = [o.phone, o.accountEmail].filter(Boolean).map(adminEscape).join(' · ');
+                    return `
+                    <div class="order-card ${isNew ? 'is-new' : ''}">
+                        <div class="order-head">
+                            <div class="order-head-left">
+                                <div class="rvadmin-avatar">${adminEscape(adminInitials(o.name, o.accountEmail))}</div>
+                                <div class="order-cust">
+                                    <div class="order-cust-name">${adminEscape(o.name || 'Customer')}</div>
+                                    <div class="order-cust-contact">${contact || '—'}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:.8rem">
+                                <span class="order-badge ${isNew ? 'new' : 'done'}">${isNew ? 'New' : 'Fulfilled'}</span>
+                                <span class="order-total-badge">${fmtMoney(o.total)}</span>
+                            </div>
+                        </div>
+                        <div class="order-body">
+                            <div class="order-items-admin">${items}</div>
+                            <div class="order-addr"><strong>Deliver to:</strong> ${adminEscape(o.address || '—')}</div>
+                        </div>
+                        <div class="order-foot">
+                            <span class="order-date">${fmtDate(o.createdAt)}</span>
+                            <div class="order-actions">
+                                ${isNew
+                            ? `<button class="btn btn-secondary btn-sm" onclick="markOrderDone('${o.id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Mark fulfilled</button>`
+                            : `<button class="btn btn-secondary btn-sm" onclick="markOrderNew('${o.id}')">Reopen</button>`
+                        }
+                                <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M5 7h14M6 7l1 12h10l1-12M10 7V5h4v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+                list.innerHTML = '<div class="orders-loading">Could not load orders.</div>';
+            }
+        }
+
+        async function markOrderDone(id) {
+            if (!adminDb) { showToast('Firebase not ready', 'error'); return; }
+            try {
+                await adminFb.updateDoc(adminFb.doc(adminDb, 'orders', id), { status: 'done' });
+                showToast('Order marked fulfilled', 'success');
+                loadOrders();
+            } catch (err) { console.error(err); showToast('Could not update order', 'error'); }
+        }
+        async function markOrderNew(id) {
+            if (!adminDb) { showToast('Firebase not ready', 'error'); return; }
+            try {
+                await adminFb.updateDoc(adminFb.doc(adminDb, 'orders', id), { status: 'new' });
+                showToast('Order reopened', 'success');
+                loadOrders();
+            } catch (err) { console.error(err); showToast('Could not update order', 'error'); }
+        }
+        async function deleteOrder(id) {
+            if (!confirm('Delete this order permanently?')) return;
+            if (!adminDb) { showToast('Firebase not ready', 'error'); return; }
+            try {
+                await adminFb.deleteDoc(adminFb.doc(adminDb, 'orders', id));
+                showToast('Order deleted', 'success');
+                loadOrders();
+            } catch (err) { console.error(err); showToast('Could not delete order', 'error'); }
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -1973,56 +2504,130 @@
         /* ═══════════════════════════════════════════════════════════
            CUSTOMERS
         ═══════════════════════════════════════════════════════════ */
+        let custUsers = [], custOrders = [], custReviews = [];
+        function ordersForEmail(email) {
+            const key = (email || '').toLowerCase();
+            return custOrders.filter(o => (o.accountEmail || '').toLowerCase() === key);
+        }
+        function reviewForEmail(email) {
+            const k = emailKeyAdmin(email);
+            return custReviews.find(r => r.id === k) || null;
+        }
+        function emailKeyAdmin(e) { return (e || '').toLowerCase().replace(/[^a-z0-9]/g, '_'); }
+
         async function loadCustomers() {
             if (!adminDb) { showToast('Firebase not ready yet', 'error'); return; }
             const tbody = document.getElementById('customers-tbody');
             const empty = document.getElementById('no-customers');
             const wrap = document.querySelector('.cust-table-wrap');
-            tbody.innerHTML = '<tr><td colspan="4" class="cust-loading">Loading customers…</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="cust-loading">Loading customers…</td></tr>';
             empty.classList.add('hidden');
             wrap.style.display = '';
             try {
-                // Load users + reviews (to mark who reviewed)
-                const [uSnap, rSnap] = await Promise.all([
+                // Load users + orders + reviews together, so we can join them by email
+                const [uSnap, oSnap, rSnap] = await Promise.all([
                     adminFb.getDocs(adminFb.collection(adminDb, 'users')),
+                    adminFb.getDocs(adminFb.collection(adminDb, 'orders')),
                     adminFb.getDocs(adminFb.collection(adminDb, 'reviews'))
                 ]);
-                const reviewed = new Set();
-                rSnap.forEach(d => reviewed.add(d.id)); // review doc id = uid
+                custUsers = []; uSnap.forEach(d => custUsers.push({ id: d.id, ...d.data() }));
+                custOrders = []; oSnap.forEach(d => custOrders.push({ id: d.id, ...d.data() }));
+                custReviews = []; rSnap.forEach(d => custReviews.push({ id: d.id, ...d.data() }));
 
-                let users = [];
-                uSnap.forEach(d => users.push({ id: d.id, ...d.data() }));
                 // sort newest first by createdAt
-                users.sort((a, b) => {
+                custUsers.sort((a, b) => {
                     const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
                     const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
                     return tb - ta;
                 });
 
-                document.getElementById('stat-total-customers').textContent = users.length;
-                const newest = users[0];
+                document.getElementById('stat-total-customers').textContent = custUsers.length;
+                const newest = custUsers[0];
                 document.getElementById('stat-newest-customer').textContent =
                     newest ? (newest.name || newest.email || '—') : '—';
 
-                if (!users.length) {
+                if (!custUsers.length) {
                     tbody.innerHTML = '';
                     wrap.style.display = 'none';
                     empty.classList.remove('hidden');
                     return;
                 }
-                tbody.innerHTML = users.map(u => {
-                    const did = reviewed.has(u.id);
-                    return `<tr>
+                tbody.innerHTML = custUsers.map(u => {
+                    const oCount = ordersForEmail(u.email).length;
+                    const did = !!reviewForEmail(u.email);
+                    return `<tr class="clickable" onclick="openCustomerDetail('${emailKeyAdmin(u.email)}')">
                         <td><div class="cust-name-cell"><div class="cust-avatar">${adminEscape(adminInitials(u.name, u.email))}</div><span class="cust-name">${adminEscape(u.name || 'Customer')}</span></div></td>
                         <td><span class="cust-email">${adminEscape(u.email || '—')}</span></td>
                         <td><span class="cust-date">${fmtDate(u.createdAt)}</span></td>
+                        <td><span class="cust-orders-count ${oCount ? '' : 'zero'}">${oCount}</span></td>
                         <td><span class="cust-badge ${did ? 'yes' : 'no'}">${did ? 'Yes' : 'No'}</span></td>
                     </tr>`;
                 }).join('');
             } catch (err) {
                 console.error(err);
-                tbody.innerHTML = '<tr><td colspan="4" class="cust-loading">Could not load customers.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="cust-loading">Could not load customers.</td></tr>';
             }
+        }
+
+        // ── Customer detail modal: shows that user's orders + review ──
+        function openCustomerDetail(userKey) {
+            const u = custUsers.find(x => emailKeyAdmin(x.email) === userKey);
+            if (!u) return;
+            const orders = ordersForEmail(u.email).sort((a, b) => {
+                const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+                const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+                return tb - ta;
+            });
+            const review = reviewForEmail(u.email);
+
+            const ordersHtml = orders.length ? orders.map(o => {
+                const isNew = (o.status || 'new') === 'new';
+                const items = (o.items || []).map(i =>
+                    `<div class="cd-order-line"><span>${adminEscape(i.name)} <span class="oi-q">× ${i.quantity}</span></span><span class="oi-q">${fmtMoney(i.price * i.quantity)}</span></div>`
+                ).join('');
+                return `<div class="cd-order">
+                    <div class="cd-order-top">
+                        <span class="cd-order-date">${fmtDate(o.createdAt)}</span>
+                        <div class="cd-order-right">
+                            <span class="order-badge ${isNew ? 'new' : 'done'}">${isNew ? 'New' : 'Fulfilled'}</span>
+                            <span class="cd-order-total">${fmtMoney(o.total)}</span>
+                        </div>
+                    </div>
+                    <div class="cd-order-items">${items}</div>
+                    <div class="cd-order-addr">Deliver to: ${adminEscape(o.address || '—')}${o.phone ? ' · ' + adminEscape(o.phone) : ''}</div>
+                </div>`;
+            }).join('') : '<div class="cd-empty">No orders yet.</div>';
+
+            const reviewHtml = review ? `<div>
+                    ${adminStars(review.rating || 0)}
+                    <div class="cd-review-text">${adminEscape(review.text || '')}</div>
+                    <div class="cd-review-date">${fmtDate(review.createdAt)}</div>
+                </div>` : '<div class="cd-empty">No review yet.</div>';
+
+            const spent = orders.filter(o => o.status === 'done').reduce((a, o) => a + (Number(o.total) || 0), 0);
+
+            document.getElementById('customer-detail-body').innerHTML = `
+                <div class="cd-header">
+                    <div class="cd-avatar">${adminEscape(adminInitials(u.name, u.email))}</div>
+                    <div class="cd-id">
+                        <div class="cd-name">${adminEscape(u.name || 'Customer')}</div>
+                        <div class="cd-email">${adminEscape(u.email || '—')}</div>
+                        <div class="cd-joined">Joined ${fmtDate(u.createdAt)}${spent ? ' · ' + fmtMoney(spent) + ' spent' : ''}</div>
+                    </div>
+                </div>
+                <div class="cd-section">
+                    <div class="cd-section-head"><h3>Orders</h3><span class="cd-count-pill">${orders.length}</span></div>
+                    ${ordersHtml}
+                </div>
+                <div class="cd-section">
+                    <div class="cd-section-head"><h3>Review</h3>${review ? '<span class="cd-count-pill">1</span>' : ''}</div>
+                    ${reviewHtml}
+                </div>
+            `;
+            document.getElementById('customer-modal').classList.remove('hidden');
+        }
+        function closeCustomerModal() {
+            document.getElementById('customer-modal').classList.add('hidden');
         }
 
         function renderProducts(products) {

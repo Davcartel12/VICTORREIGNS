@@ -1679,8 +1679,7 @@
             <textarea id="address" name="address" required placeholder="Enter your full delivery address…"></textarea>
           </div>
           <input type="hidden" id="order-total" name="order-total">
-          <button type="submit" class="btn btn-solid btn-block btn-lg" style="margin-top:.5rem">Place Order via
-            WhatsApp</button>
+          <button type="submit" class="btn btn-solid btn-block btn-lg" style="margin-top:.5rem">Place Order</button>
         </form>
       </div>
       <div class="order-summary"><!-- loaded by JS --></div>
@@ -2120,7 +2119,7 @@
         <h2>Order Summary</h2>
         <div class="summary-row"><span>Items</span><span>${cartCount()}</span></div>
         <div class="summary-row"><span>Subtotal</span><span>${fmt(total)}</span></div>
-        <div class="summary-note">Delivery arranged on WhatsApp after checkout.</div>
+        <div class="summary-note">We'll contact you to arrange delivery after checkout.</div>
         <div class="summary-row summary-total"><span>Total</span><span>${fmt(total)}</span></div>
         <a href="checkout.html" class="btn btn-solid btn-block">Proceed to Checkout</a>
         <a href="shop.html" class="btn btn-outline btn-block">Continue Shopping</a>`;
@@ -2150,7 +2149,7 @@
           <h2>Order Summary</h2>
           <div class="order-items">${cart.map(i => `<div class="order-item"><span class="oi-name">${esc(i.name)} <span class="oi-qty">× ${i.quantity}</span></span><span class="oi-price">${fmt(i.price * i.quantity)}</span></div>`).join('')}</div>
           <div class="summary-row summary-total"><span>Total</span><span>${fmt(total)}</span></div>
-          <div class="summary-note">You'll confirm payment (Cash or Mobile Money) with us on WhatsApp.</div>`;
+          <div class="summary-note">Payment (Cash or Mobile Money) is confirmed when we contact you.</div>`;
           }
         }
         const totalField = $('#order-total'); if (totalField) totalField.value = cartTotal();
@@ -2159,12 +2158,37 @@
           const items = getCart(); if (!items.length) { toast('Your cart is empty.'); return; }
           const name = $('#name', form).value.trim(), phone = $('#phone', form).value.trim(), address = $('#address', form).value.trim();
           if (!name || !phone || !address) { toast('Please fill in all fields.'); return; }
-          const lines = items.map(i => `• ${i.name} × ${i.quantity} — ${fmt(i.price * i.quantity)}`).join('\n');
-          const text = `*New Order — VictorReigns Empire*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Delivery address:* ${address}\n\n*Items:*\n${lines}\n\n*Total: ${fmt(cartTotal())}*`;
-          window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
-          localStorage.removeItem(CART_KEY); updateCartBadge();
-          if (summaryBox) summaryBox.innerHTML = `<h2>Order sent <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><path d="M4 20l5-13 8 8-13 5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 7l3-3M14 6l2-2M18 10l2-1M16 14l3 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></h2><p class="grid-message">Your order opened in WhatsApp — send it to us and we'll confirm delivery and payment. <a href="shop.html">Keep shopping</a>.</p>`;
-          const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
+
+          if (!window.db) { toast('Connection issue — please try again.'); return; }
+
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const btnOrig = submitBtn ? submitBtn.textContent : '';
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Placing order…'; }
+
+          // Who is ordering (from the home-page gate)
+          let customer = null;
+          try { customer = JSON.parse(localStorage.getItem('vr_customer') || 'null'); } catch (err) { }
+
+          const order = {
+            name: name,
+            phone: phone,
+            address: address,
+            accountEmail: (customer && customer.email) || '',
+            items: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, category: i.category || '' })),
+            total: cartTotal(),
+            status: 'new',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          window.db.collection('orders').add(order).then(() => {
+            localStorage.removeItem(CART_KEY); updateCartBadge();
+            if (summaryBox) summaryBox.innerHTML = `<h2>Order placed <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">Thank you! We've received your order and will contact you shortly to confirm delivery and payment. <a href="shop.html">Keep shopping</a>.</p>`;
+            const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
+          }).catch((err) => {
+            console.error(err);
+            toast('Could not place order. Please try again.');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = btnOrig; }
+          });
         });
       }
 
