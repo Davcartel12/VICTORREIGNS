@@ -1926,28 +1926,20 @@
     <div class="vr-auth">
       <div class="vr-auth-card">
         <img src="logo.png" alt="VictorReigns Empire" class="vr-auth-logo">
-        <h2 id="vr-auth-title">Welcome back</h2>
-        <p class="vr-auth-sub" id="vr-auth-sub">Sign in to continue shopping</p>
+        <h2 id="vr-auth-title">Welcome</h2>
+        <p class="vr-auth-sub" id="vr-auth-sub">Enter your details to continue shopping</p>
         <form id="vr-auth-form">
-          <div class="vr-field" id="vr-name-field" style="display:none">
+          <div class="vr-field">
             <label for="vr-name">Name</label>
-            <input type="text" id="vr-name" autocomplete="name" placeholder="Your name">
+            <input type="text" id="vr-name" autocomplete="name" required placeholder="Your name">
           </div>
           <div class="vr-field">
             <label for="vr-email">Email</label>
             <input type="email" id="vr-email" autocomplete="email" required placeholder="you@example.com">
           </div>
-          <div class="vr-field">
-            <label for="vr-password">Password</label>
-            <input type="password" id="vr-password" autocomplete="current-password" required placeholder="••••••••">
-          </div>
-          <button type="submit" class="vr-auth-btn" id="vr-auth-btn">Sign in</button>
+          <button type="submit" class="vr-auth-btn" id="vr-auth-btn">Continue</button>
           <p class="vr-auth-error" id="vr-auth-error"></p>
         </form>
-        <div class="vr-auth-toggle" id="vr-auth-toggle-wrap">
-          <span id="vr-auth-toggle-text">New here?</span>
-          <button type="button" id="vr-auth-toggle">Create an account</button>
-        </div>
       </div>
     </div>
 
@@ -1967,148 +1959,89 @@
     (function () {
       var doors = document.getElementById('vr-doors');
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var STORE_KEY = 'vr_customer';
 
       document.body.classList.add('vr-locked');
 
-      // ── Open the doors (reveals auth card behind them) ──
+      // ── Open the doors (reveals the form behind them) ──
       var opened = false;
       function openDoors() {
         if (opened) return; opened = true;
         doors.classList.add('vr-open');
       }
-      // ── Fully dismiss the gate (after successful auth) ──
+      // ── Fully dismiss the gate (after they enter details) ──
       function unlock() {
         doors.classList.add('vr-hidden');
         document.body.classList.remove('vr-locked');
       }
 
-      // ── Wait for Firebase auth, then decide: skip or show gate ──
-      function bootGate() {
-        // Firebase scripts load near the end of <body>; poll until ready
-        var waited = 0;
-        (function waitForAuth() {
-          if (window.auth) { runGate(); return; }
-          if (waited >= 4000) { openDoors(); return; } // offline fallback
-          waited += 100;
-          setTimeout(waitForAuth, 100);
-        })();
+      function getSavedCustomer() {
+        try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); }
+        catch (e) { return null; }
       }
 
-      function runGate() {
-        // Persist session across tabs/reloads
-        try { window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch (e) { }
-
-        var decided = false;
-        window.auth.onAuthStateChanged(function (user) {
-          if (decided) return; decided = true;
-          if (user) {
-            // Already logged in — skip the gate entirely
-            unlock();
-          } else {
-            openDoors();
-          }
-        });
-        // Safety: if auth state never fires, still open the gate
-        setTimeout(function () { if (!decided) { decided = true; openDoors(); } }, 2500);
-      }
-
-      // Start after the seal logo loads (so doors don't flash empty), then a short hold
-      var img = doors.querySelector('.vr-door-logo');
+      // ── Decide: already entered before → skip, else show the form ──
       var began = false;
       function begin() {
         if (began) return; began = true;
-        setTimeout(bootGate, reduce ? 150 : 900);
+        setTimeout(function () {
+          var saved = getSavedCustomer();
+          if (saved && saved.email) {
+            unlock();               // returning visitor — straight in
+          } else {
+            openDoors();            // new visitor — show the form
+          }
+        }, reduce ? 150 : 900);
       }
+      var img = doors.querySelector('.vr-door-logo');
       if (img && img.complete) begin();
       else if (img) { img.addEventListener('load', begin); img.addEventListener('error', begin); setTimeout(begin, 1200); }
       else begin();
 
-      // ── Auth form (login / signup toggle) ──
-      var mode = 'login';
+      // ── The email + name form ──
       var form = document.getElementById('vr-auth-form');
       var btn = document.getElementById('vr-auth-btn');
       var errEl = document.getElementById('vr-auth-error');
-      var nameField = document.getElementById('vr-name-field');
-      var title = document.getElementById('vr-auth-title');
-      var sub = document.getElementById('vr-auth-sub');
-      var toggleText = document.getElementById('vr-auth-toggle-text');
-      var toggleBtn = document.getElementById('vr-auth-toggle');
-      var passInput = document.getElementById('vr-password');
 
-      function setMode(m) {
-        mode = m;
-        errEl.textContent = '';
-        if (m === 'signup') {
-          nameField.style.display = 'block';
-          title.textContent = 'Create your account';
-          sub.textContent = 'Join VictorReigns Empire';
-          btn.textContent = 'Create account';
-          toggleText.textContent = 'Already have an account?';
-          toggleBtn.textContent = 'Sign in';
-          passInput.setAttribute('autocomplete', 'new-password');
-        } else {
-          nameField.style.display = 'none';
-          title.textContent = 'Welcome back';
-          sub.textContent = 'Sign in to continue shopping';
-          btn.textContent = 'Sign in';
-          toggleText.textContent = 'New here?';
-          toggleBtn.textContent = 'Create an account';
-          passInput.setAttribute('autocomplete', 'current-password');
-        }
-      }
-      toggleBtn.addEventListener('click', function () { setMode(mode === 'login' ? 'signup' : 'login'); });
-
-      function friendlyError(code) {
-        var map = {
-          'auth/invalid-email': 'That email address looks invalid.',
-          'auth/user-disabled': 'This account has been disabled.',
-          'auth/user-not-found': 'No account found with that email.',
-          'auth/wrong-password': 'Incorrect email or password.',
-          'auth/invalid-credential': 'Incorrect email or password.',
-          'auth/email-already-in-use': 'An account with this email already exists.',
-          'auth/weak-password': 'Password should be at least 6 characters.',
-          'auth/network-request-failed': 'Network error — check your connection.',
-          'auth/too-many-requests': 'Too many attempts. Please try again later.'
-        };
-        return map[code] || 'Something went wrong. Please try again.';
-      }
+      function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+      function emailKey(e) { return e.toLowerCase().replace(/[^a-z0-9]/g, '_'); }
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         errEl.textContent = '';
-        if (!window.auth) { errEl.textContent = 'Service unavailable. Please refresh.'; return; }
 
-        var email = document.getElementById('vr-email').value.trim();
-        var pass = passInput.value;
         var name = (document.getElementById('vr-name').value || '').trim();
+        var email = (document.getElementById('vr-email').value || '').trim();
+
+        if (!name) { errEl.textContent = 'Please enter your name.'; return; }
+        if (!validEmail(email)) { errEl.textContent = 'Please enter a valid email address.'; return; }
+
         btn.disabled = true;
         var original = btn.textContent;
-        btn.textContent = mode === 'signup' ? 'Creating…' : 'Signing in…';
+        btn.textContent = 'Entering…';
 
-        var done = function () { btn.disabled = false; btn.textContent = original; };
+        // Save locally so this device skips the gate next time
+        var customer = { name: name, email: email };
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(customer)); } catch (err) { }
 
-        if (mode === 'signup') {
-          window.auth.createUserWithEmailAndPassword(email, pass)
-            .then(function (cred) {
-              // Save display name + a customer record in Firestore
-              var uid = cred.user.uid;
-              var tasks = [];
-              if (name) tasks.push(cred.user.updateProfile({ displayName: name }));
-              if (window.db) {
-                tasks.push(window.db.collection('users').doc(uid).set({
-                  name: name || '',
-                  email: email,
-                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true }));
-              }
-              return Promise.all(tasks);
-            })
-            .then(function () { unlock(); })
-            .catch(function (err) { done(); errEl.textContent = friendlyError(err.code); });
+        // Save / update the customer record in Firestore (keyed by email).
+        // "merge + set createdAt only if new" — keep original join date.
+        function finish() { unlock(); }
+
+        if (window.db) {
+          var ref = window.db.collection('users').doc(emailKey(email));
+          ref.get().then(function (snap) {
+            var data = { name: name, email: email };
+            if (!snap.exists) {
+              data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
+            return ref.set(data, { merge: true });
+          }).then(finish).catch(function () {
+            // Even if the DB write fails, let them in (offline-friendly)
+            finish();
+          });
         } else {
-          window.auth.signInWithEmailAndPassword(email, pass)
-            .then(function () { unlock(); })
-            .catch(function (err) { done(); errEl.textContent = friendlyError(err.code); });
+          finish();
         }
       });
     })();

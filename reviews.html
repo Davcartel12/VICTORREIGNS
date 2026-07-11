@@ -1982,8 +1982,8 @@
 
         <!-- Login prompt (logged out) -->
         <div class="rv-login-prompt" id="rv-login-prompt" style="display:none">
-            <p>Sign in to your account to leave a review and rating.</p>
-            <a href="index.html" class="btn btn-solid">Sign in</a>
+            <p>Enter your details on the home page to leave a review and rating.</p>
+            <a href="index.html" class="btn btn-solid">Go to home</a>
         </div>
 
         <!-- Reviews list -->
@@ -2557,8 +2557,14 @@
                 });
             }
 
-            var currentUser = null;
+            var currentCustomer = null;  // { name, email }
             var myRating = 0;
+
+            function emailKey(e) { return (e || '').toLowerCase().replace(/[^a-z0-9]/g, '_'); }
+            function getCustomer() {
+                try { return JSON.parse(localStorage.getItem('vr_customer') || 'null'); }
+                catch (e) { return null; }
+            }
 
             // ── Star input ──
             var starInput = document.getElementById('rv-star-input');
@@ -2577,24 +2583,24 @@
             if (starInput) starInput.addEventListener('mouseleave', function () { paintStars(myRating); });
             paintStars(0);
 
-            // ── Auth state → show write form or login prompt ──
-            function applyAuth(user) {
-                currentUser = user;
+            // ── Customer present? → show write form, else prompt to enter details ──
+            function applyCustomer(cust) {
+                currentCustomer = cust;
                 var write = document.getElementById('rv-write');
                 var prompt = document.getElementById('rv-login-prompt');
-                if (user) {
+                if (cust && cust.email) {
                     write.style.display = 'block';
                     prompt.style.display = 'none';
-                    prefillMyReview(user.uid);
+                    prefillMyReview(cust.email);
                 } else {
                     write.style.display = 'none';
                     prompt.style.display = 'block';
                 }
             }
 
-            function prefillMyReview(uid) {
+            function prefillMyReview(email) {
                 if (!window.db) return;
-                window.db.collection('reviews').doc(uid).get().then(function (doc) {
+                window.db.collection('reviews').doc(emailKey(email)).get().then(function (doc) {
                     if (doc.exists) {
                         var d = doc.data();
                         myRating = d.rating || 0;
@@ -2614,7 +2620,7 @@
 
             if (submitBtn) submitBtn.addEventListener('click', function () {
                 setMsg('');
-                if (!currentUser) { setMsg('Please sign in first.', 'err'); return; }
+                if (!currentCustomer || !currentCustomer.email) { setMsg('Please enter your details on the home page first.', 'err'); return; }
                 if (!window.db) { setMsg('Service unavailable. Please refresh.', 'err'); return; }
                 var text = document.getElementById('rv-text').value.trim();
                 if (!myRating) { setMsg('Please select a star rating.', 'err'); return; }
@@ -2624,10 +2630,9 @@
                 var orig = submitBtn.textContent;
                 submitBtn.textContent = 'Saving…';
 
-                window.db.collection('reviews').doc(currentUser.uid).set({
-                    uid: currentUser.uid,
-                    name: currentUser.displayName || '',
-                    email: currentUser.email || '',
+                window.db.collection('reviews').doc(emailKey(currentCustomer.email)).set({
+                    name: currentCustomer.name || '',
+                    email: currentCustomer.email || '',
                     rating: myRating,
                     text: text,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2692,17 +2697,16 @@
                 });
             }
 
-            // ── Boot: wait for Firebase, then wire auth + reviews ──
+            // ── Boot: wait for Firestore, then wire customer + reviews ──
+            // Identity comes from localStorage (set at the home-page gate), no Firebase Auth.
+            applyCustomer(getCustomer());
             var waited = 0;
             (function boot() {
-                if (window.auth && window.db) {
-                    window.auth.onAuthStateChanged(applyAuth);
+                if (window.db) {
                     watchReviews();
                     return;
                 }
                 if (waited >= 5000) {
-                    // offline fallback: show login prompt + empty list
-                    applyAuth(null);
                     document.getElementById('rv-list').innerHTML = '<div class="rv-empty">Reviews are unavailable right now.</div>';
                     return;
                 }
