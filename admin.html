@@ -11,10 +11,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VR Admin">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
+                navigator.serviceWorker.register('/sw.js').catch(() => { });
             });
         }
     </script>
@@ -800,6 +802,12 @@
                 min-width: unset;
             }
         }
+
+        /* ── Image upload zone ── */
+        #drop-zone.dragover {
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, .07);
+        }
     </style>
 </head>
 
@@ -874,9 +882,12 @@
                 </div>
 
                 <div class="admin-controls">
-                    <div style="display:flex;align-items:center;gap:10px;background:var(--card);padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;">
-                        <span style="color:var(--gold);font-size:0.85rem;font-weight:600;text-transform:uppercase;">Frontpage:</span>
-                        <select id="home-title-toggle" class="filter-select" onchange="toggleHomepageTitle(this.value)" style="border:none;background:transparent;color:var(--text);font-weight:bold;">
+                    <div
+                        style="display:flex;align-items:center;gap:10px;background:var(--card);padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;">
+                        <span
+                            style="color:var(--gold);font-size:0.85rem;font-weight:600;text-transform:uppercase;">Frontpage:</span>
+                        <select id="home-title-toggle" class="filter-select" onchange="toggleHomepageTitle(this.value)"
+                            style="border:none;background:transparent;color:var(--text);font-weight:bold;">
                             <option value="featured">Featured Products</option>
                             <option value="ticker">NEW ARRIVALS (Ticker)</option>
                         </select>
@@ -903,7 +914,8 @@
                 <div id="products-grid" class="products-grid-admin">
                     <!-- cards injected by JS -->
                 </div>
-                <div id="no-products" class="no-orders hidden" style="text-align:center;padding:3rem;color:var(--muted)">
+                <div id="no-products" class="no-orders hidden"
+                    style="text-align:center;padding:3rem;color:var(--muted)">
                     <p style="font-size:2rem;margin-bottom:.5rem">📦</p>
                     <p>No products found. Add your first product!</p>
                 </div>
@@ -923,15 +935,33 @@
                     <input type="hidden" id="edit-product-id">
                     <input type="hidden" id="edit-image-url">
 
-                    <!-- Image URL -->
+                    <!-- Image upload -->
                     <div class="form-group">
-                        <label>Product Image URL</label>
-                        <input type="url" id="product-image-url" placeholder="https://example.com/image.jpg"
-                               oninput="previewImageUrl(this.value)"
-                               style="width:100%;padding:.65rem .9rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit">
-                        <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem">Paste a direct image link (e.g. from Imgur, Cloudinary, Supaimg, etc.)</p>
+                        <label>Product Image</label>
+
+                        <!-- Upload panel -->
+                        <div id="panel-upload">
+                            <div id="drop-zone" onclick="document.getElementById('file-input').click()"
+                                ondragover="event.preventDefault();this.classList.add('dragover')"
+                                ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)"
+                                style="border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s">
+                                <div style="font-size:1.8rem;margin-bottom:.3rem">🖼️</div>
+                                <p style="color:var(--muted);font-size:.85rem;margin:0">Drag &amp; drop or <strong
+                                        style="color:var(--gold)">click to upload</strong></p>
+                                <p style="color:var(--muted);font-size:.74rem;margin:.3rem 0 0">JPG, PNG, WEBP — max 800
+                                    KB (auto-compressed)</p>
+                            </div>
+                            <input type="file" id="file-input" accept="image/*" style="display:none"
+                                onchange="handleFileSelect(this)">
+                            <div id="upload-status"
+                                style="font-size:.78rem;color:var(--muted);margin-top:.4rem;min-height:1.2em"></div>
+                        </div>
+
+                        <!-- Preview -->
                         <img id="img-preview" alt="Preview"
-                             style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:.75rem;display:none">
+                            style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:.75rem;display:none;border:1px solid var(--border)">
+                        <input type="hidden" id="img-base64">
+                        <input type="hidden" id="product-image-url">
                     </div>
 
                     <!-- Name & Price -->
@@ -1141,14 +1171,65 @@
             renderProducts(filtered);
         }
 
+        /* ─── Drag & drop ───────────────────────────────────────── */
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processImageFile(file);
+        }
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) processImageFile(file);
+        }
+
+        /* ─── Compress + convert to base64 ─────────────────────── */
+        function processImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                setUploadStatus('❌ Please select an image file.', true); return;
+            }
+            setUploadStatus('⏳ Processing…');
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const MAX = 900, Q = 0.75;
+                    let w = img.width, h = img.height;
+                    if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const b64 = canvas.toDataURL('image/jpeg', Q);
+                    const kb = Math.round(b64.length * 0.75 / 1024);
+                    if (kb > 900) {
+                        setUploadStatus(`⚠️ Compressed to ${kb} KB — try a smaller image for best performance.`);
+                    } else {
+                        setUploadStatus(`✅ Ready — ${kb} KB`);
+                    }
+                    document.getElementById('img-base64').value = b64;
+                    const prev = document.getElementById('img-preview');
+                    prev.src = b64; prev.style.display = 'block';
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        function setUploadStatus(msg, isErr) {
+            const el = document.getElementById('upload-status');
+            el.textContent = msg;
+            el.style.color = isErr ? 'var(--red)' : 'var(--muted)';
+        }
+
         /* ─── Add / Edit Product Modal ──────────────────────────── */
         function openAddProduct() {
             document.getElementById('product-modal-title').textContent = 'Add Product';
             document.getElementById('product-form').reset();
             document.getElementById('edit-product-id').value = '';
             document.getElementById('edit-image-url').value = '';
-            document.getElementById('product-image-url').value = '';
+            document.getElementById('img-base64').value = '';
             document.getElementById('img-preview').style.display = 'none';
+            document.getElementById('file-input').value = '';
+            setUploadStatus('');
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
@@ -1158,30 +1239,25 @@
             document.getElementById('product-modal-title').textContent = 'Edit Product';
             document.getElementById('edit-product-id').value = id;
             document.getElementById('edit-image-url').value = p.imageUrl || '';
-            document.getElementById('product-image-url').value = p.imageUrl || '';
+            document.getElementById('img-base64').value = '';
             document.getElementById('p-name').value = p.name || '';
             document.getElementById('p-price').value = p.price || '';
             document.getElementById('p-category').value = p.category || '';
             document.getElementById('p-description').value = p.description || '';
+            document.getElementById('file-input').value = '';
+            setUploadStatus('');
             const prev = document.getElementById('img-preview');
-            if (p.imageUrl) { prev.src = p.imageUrl; prev.style.display = 'block'; }
-            else prev.style.display = 'none';
+            if (p.imageUrl) {
+                prev.src = p.imageUrl; prev.style.display = 'block';
+                setUploadStatus('Current image loaded — upload a new one to replace it.');
+            } else {
+                prev.style.display = 'none';
+            }
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
         function closeProductModal() {
             document.getElementById('product-modal').classList.add('hidden');
-        }
-
-        function previewImageUrl(url) {
-            const prev = document.getElementById('img-preview');
-            if (url && url.trim()) {
-                prev.src = url.trim();
-                prev.style.display = 'block';
-                prev.onerror = () => { prev.style.display = 'none'; };
-            } else {
-                prev.style.display = 'none';
-            }
         }
 
         /* ─── Save (add or edit) ────────────────────────────────── */
@@ -1197,7 +1273,17 @@
             const price = parseFloat(document.getElementById('p-price').value);
             const category = document.getElementById('p-category').value;
             const description = document.getElementById('p-description').value.trim();
-            const imageUrl = document.getElementById('product-image-url').value.trim();
+
+            // Use newly uploaded base64, or keep existing stored image
+            const b64 = document.getElementById('img-base64').value;
+            const existing = document.getElementById('edit-image-url').value;
+            const imageUrl = b64 || existing;
+
+            if (!imageUrl) {
+                showToast('Please add a product image', 'error');
+                btn.disabled = false; btn.textContent = 'Save Product';
+                return;
+            }
 
             try {
                 const data = {
@@ -1207,11 +1293,9 @@
                 };
 
                 if (id) {
-                    // Edit existing
                     await adminFb.updateDoc(adminFb.doc(adminDb, 'products', id), data);
                     showToast('Product updated ✓', 'success');
                 } else {
-                    // Add new
                     data.createdAt = adminFb.serverTimestamp();
                     await adminFb.addDoc(adminFb.collection(adminDb, 'products'), data);
                     showToast('Product added ✓', 'success');
@@ -1221,7 +1305,7 @@
                 loadProducts();
             } catch (err) {
                 console.error(err);
-                showToast('Error saving product', 'error');
+                showToast('Error saving product: ' + err.message, 'error');
             } finally {
                 btn.disabled = false; btn.textContent = 'Save Product';
             }
