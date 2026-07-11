@@ -771,6 +771,18 @@
             gap: .3rem;
         }
 
+        .logo-img {
+            height: 34px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-img-lg {
+            height: 60px;
+            width: auto;
+            display: block;
+        }
+
         .vr-crown {
             font-size: 1rem;
             color: var(--gold);
@@ -816,10 +828,7 @@
     <!-- ══════════════════ LOADING SCREEN ══════════════════ -->
     <div id="loading-screen">
         <div style="text-align:center">
-            <div class="vr-logo-mark" style="justify-content:center;margin-bottom:1rem">
-                <span class="vr-crown">♛</span>
-                <div class="vr-ring">VR</div>
-            </div>
+            <img src="logo.png" alt="VictorReigns Empire" class="logo-img-lg" style="margin:0 auto 1rem">
             <div class="loading-bar-container">
                 <div class="loading-bar" id="loading-bar"></div>
             </div>
@@ -830,10 +839,7 @@
     <!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
     <div id="login-screen" class="hidden">
         <div class="login-container">
-            <div class="vr-logo-mark" style="justify-content:center;margin-bottom:1rem">
-                <span class="vr-crown">♛</span>
-                <div class="vr-ring">VR</div>
-            </div>
+            <img src="logo.png" alt="VictorReigns Empire" class="logo-img-lg" style="margin:0 auto 1rem">
             <h1>Admin Panel</h1>
             <p>VictorReigns Empire</p>
             <form id="login-form" class="login-form">
@@ -854,10 +860,7 @@
         <header class="admin-header">
             <div class="admin-header-content">
                 <div class="admin-logo">
-                    <div class="vr-logo-mark">
-                        <span class="vr-crown">♛</span>
-                        <div class="vr-ring">VR</div>
-                    </div>
+                    <img src="logo1.png" alt="VictorReigns Empire" class="logo-img">
                     VictorReigns Empire — Admin
                 </div>
                 <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
