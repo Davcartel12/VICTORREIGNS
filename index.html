@@ -1677,18 +1677,21 @@ body.vr-locked { overflow: hidden; }
         status: 'new'
       };
 
-      // Build the WhatsApp message now (so it's ready the moment we need it)
+      // Build the WhatsApp message (WhatsApp supports *bold*, _italic_, ~strike~
+      // and ```mono``` — there is NO underline, so headings use bold+italic).
       const waLines = items.map(i => {
         const colour = i.color ? ` (${i.color})` : '';
-        return `• ${i.name}${colour} × ${i.quantity} — ${fmt(i.price * i.quantity)}`;
+        return `*${i.name}${colour} × ${i.quantity} — ${fmt(i.price * i.quantity)}*`;
       }).join('\n');
       const waText =
-        `*New Order — VictorReigns Empire*\n\n` +
-        `*Name:* ${name}\n` +
-        `*Phone:* ${phone}\n` +
-        `*Delivery address:* ${address}\n\n` +
-        `*Items:*\n${waLines}\n\n` +
-        `*Total: ${fmt(cartTotal())}*`;
+        `*_New Order_*\n` +
+        `*_VictorReigns Empire_*\n\n` +
+        `*Name* : _${name}_\n` +
+        `*Phone* : _${phone}_\n` +
+        `*Delivery address* : _${address}_\n\n` +
+        `*_Items_*\n` +
+        `${waLines}\n\n` +
+        `*_Total: ${fmt(cartTotal())}_*`;
       const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`;
 
       // ── Open WhatsApp FIRST, right here in the click handler. ──
