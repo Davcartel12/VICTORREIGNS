@@ -877,7 +877,7 @@ body.vr-locked { overflow: hidden; }
             <textarea id="address" name="address" required placeholder="Enter your full delivery address…"></textarea>
           </div>
           <input type="hidden" id="order-total" name="order-total">
-          <button type="submit" class="btn btn-solid btn-block btn-lg" style="margin-top:.5rem">Place Order</button>
+          <button type="submit" class="btn btn-solid btn-block btn-lg" style="margin-top:.5rem">Place Order via WhatsApp</button>
         </form>
       </div>
       <div class="order-summary"><!-- loaded by JS --></div>
@@ -1617,7 +1617,7 @@ body.vr-locked { overflow: hidden; }
         <h2>Order Summary</h2>
         <div class="summary-row"><span>Items</span><span>${cartCount()}</span></div>
         <div class="summary-row"><span>Subtotal</span><span>${fmt(total)}</span></div>
-        <div class="summary-note">We'll contact you to arrange delivery after checkout.</div>
+        <div class="summary-note">Your order opens in WhatsApp — send it to confirm.</div>
         <div class="summary-row summary-total"><span>Total</span><span>${fmt(total)}</span></div>
         <a href="checkout.html" class="btn btn-solid btn-block">Proceed to Checkout</a>
         <a href="shop.html" class="btn btn-outline btn-block">Continue Shopping</a>`;
@@ -1648,7 +1648,7 @@ body.vr-locked { overflow: hidden; }
           <h2>Order Summary</h2>
           <div class="order-items">${cart.map(i => `<div class="order-item"><span class="oi-name">${esc(i.name)} <span class="oi-qty">× ${i.quantity}</span></span><span class="oi-price">${fmt(i.price * i.quantity)}</span></div>`).join('')}</div>
           <div class="summary-row summary-total"><span>Total</span><span>${fmt(total)}</span></div>
-          <div class="summary-note">Payment (Cash or Mobile Money) is confirmed when we contact you.</div>`;
+          <div class="summary-note">Payment (Cash or Mobile Money) is confirmed on WhatsApp.</div>`;
       }
     }
     const totalField = $('#order-total'); if (totalField) totalField.value = cartTotal();
@@ -1678,9 +1678,31 @@ body.vr-locked { overflow: hidden; }
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
 
+      // Build the WhatsApp message now (so it's ready the moment we need it)
+      const waLines = items.map(i => {
+        const colour = i.color ? ` (${i.color})` : '';
+        return `• ${i.name}${colour} × ${i.quantity} — ${fmt(i.price * i.quantity)}`;
+      }).join('\n');
+      const waText =
+        `*New Order — VictorReigns Empire*\n\n` +
+        `*Name:* ${name}\n` +
+        `*Phone:* ${phone}\n` +
+        `*Delivery address:* ${address}\n\n` +
+        `*Items:*\n${waLines}\n\n` +
+        `*Total: ${fmt(cartTotal())}*`;
+      const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`;
+
+      // Open the WhatsApp tab NOW, while we're still inside the click handler —
+      // if we wait for the save to finish, popup blockers kill it.
+      const waTab = window.open('', '_blank');
+
       window.db.collection('orders').add(order).then(() => {
-        // Notify the owner. Fire-and-forget: if this fails for any reason, the
-        // customer's order is already saved and must still succeed.
+        // Send the customer to WhatsApp with the order pre-filled
+        if (waTab && !waTab.closed) waTab.location.href = waUrl;
+        else window.location.href = waUrl;   // popup blocked → navigate instead
+
+        // Also notify the owner directly (push + WhatsApp API, if configured).
+        // Fire-and-forget: failures here never affect the customer's order.
         try {
           const payload = JSON.stringify({
             name: order.name,
@@ -1696,10 +1718,12 @@ body.vr-locked { overflow: hidden; }
         } catch (e) {}
 
         localStorage.removeItem(CART_KEY); updateCartBadge();
-        if (summaryBox) summaryBox.innerHTML = `<h2>Order placed <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">Thank you! We've received your order and will contact you shortly to confirm delivery and payment. <a href="shop.html">Keep shopping</a>.</p>`;
+        if (summaryBox) summaryBox.innerHTML = `<h2>Order placed <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">We've received your order — please send the WhatsApp message that just opened so we can confirm it. <a href="${waUrl}" target="_blank">Open WhatsApp again</a> · <a href="shop.html">Keep shopping</a>.</p>`;
         const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
       }).catch((err) => {
         console.error(err);
+        // Order didn't save — don't leave a blank WhatsApp tab hanging around
+        try { if (waTab && !waTab.closed) waTab.close(); } catch (e) {}
         toast('Could not place order. Please try again.');
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = btnOrig; }
       });
