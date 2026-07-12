@@ -607,42 +607,70 @@
             :root { --sidebar-w: 0px; }
             /* Stack: header bar on top, content below (was side-by-side flex) */
             #admin-panel { display: block; }
+            html, body { overflow-x: hidden; }   /* never allow sideways scroll */
+
             .admin-header {
                 position: sticky; top: 0; left: 0; right: 0;
                 width: 100%; height: auto; bottom: auto;
                 border-right: none; border-bottom: 1px solid var(--line);
             }
+            /* Two rows: [logo + actions] then [scrollable tabs] */
             .admin-header-content {
-                flex-direction: row; align-items: center;
-                padding: .7rem 1rem; gap: .75rem; height: auto;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas: "logo actions" "nav nav";
+                align-items: center;
+                padding: .6rem .8rem .35rem; gap: .5rem .75rem; height: auto;
             }
             .admin-logo {
+                grid-area: logo;
                 border: none; margin: 0; padding: 0;
-                flex: 1; min-width: 0; gap: .5rem;
+                min-width: 0; gap: .5rem;
             }
-            .admin-logo .logo-img { height: 30px; }
+            .admin-logo .logo-img { height: 28px; }
             .admin-logo span { display: none; }
-            .side-label { display: none; }
-            .side-nav { flex-direction: row; gap: 4px; }
-            .admin-tab-btn { padding: .5rem .85rem; font-size: .85rem; }
-            .admin-tab-btn.active::before { display: none; }
+
             .side-foot {
+                grid-area: actions;
                 margin: 0; padding: 0; border: none;
                 flex-direction: row; gap: 2px;
             }
             .side-link .side-link-text { display: none; }
-            .side-link { padding: .55rem; }
-            .admin-main {
-                margin-left: 0; max-width: 100%;
-                padding: 1.35rem 1rem 3rem;
+            .side-link { padding: .5rem; }
+
+            /* Tabs get their own full-width row; scroll sideways if they don't fit */
+            .side-label { display: none; }
+            .side-nav {
+                grid-area: nav;
+                flex-direction: row; gap: 4px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding-bottom: .15rem;
+                margin: 0 -.8rem;              /* bleed to the screen edges */
+                padding-left: .8rem; padding-right: .8rem;
             }
-            .page-head { flex-wrap: wrap; }
+            .side-nav::-webkit-scrollbar { display: none; }
+            .admin-tab-btn {
+                padding: .45rem .8rem; font-size: .84rem;
+                white-space: nowrap; flex: 0 0 auto;
+            }
+            .admin-tab-btn.active::before { display: none; }
+
+            .admin-main {
+                margin-left: 0; max-width: 100%; width: 100%;
+                padding: 1.25rem .8rem 3rem;
+            }
+            .page-head { flex-wrap: wrap; gap: .75rem; }
             .page-head h1 { font-size: 1.35rem; }
-            .admin-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .admin-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .admin-controls { gap: 10px; }
             .setting-chip { flex: 1; min-width: 0; }
             .search-filter { min-width: 100%; order: 3; }
-            .products-grid-admin { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .products-grid-admin { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            /* tables + wide blocks must not push the page sideways */
+            .cust-table-wrap { max-width: 100%; }
+            .rvadmin-list { grid-template-columns: 1fr; }
         }
         @media (max-width: 480px) {
             .admin-header-content { padding: .6rem .8rem; gap: .5rem; }
