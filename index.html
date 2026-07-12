@@ -346,11 +346,11 @@ footer { border-top: 1px solid var(--line); background: var(--bg); margin-top: 1
 #vr-doors { position: fixed; inset: 0; z-index: 9999; }
 #vr-doors.vr-hidden { display: none; }
 .vr-gate-bg { position: absolute; inset: 0; background: #0b0906; }
-.vr-door { position: absolute; top: 0; height: 100%; width: 50%; background: linear-gradient(135deg,#1a1712 0%,#0b0906 100%); will-change: transform; transition: transform 2.2s cubic-bezier(.65,0,.25,1); z-index: 3; pointer-events: none; }
+.vr-door { position: absolute; top: 0; height: 100%; width: 50%; background: linear-gradient(135deg,#1a1712 0%,#0b0906 100%); will-change: transform; transition: transform .9s cubic-bezier(.7,0,.2,1); z-index: 3; pointer-events: none; }
 .vr-door-left  { left: 0;  border-right: 1px solid var(--gold); box-shadow: 8px 0 30px rgba(0,0,0,.45); }
 .vr-door-right { right: 0; border-left: 1px solid var(--gold); box-shadow: -8px 0 30px rgba(0,0,0,.45); background: linear-gradient(225deg,#1a1712 0%,#0b0906 100%); }
 .vr-door-inset { position: absolute; inset: clamp(10px,2vw,22px); border: 1px solid rgba(201,168,76,.30); border-radius: 2px; }
-.vr-door-seal { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; z-index: 4; transition: opacity .7s ease, transform .7s ease; }
+.vr-door-seal { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; z-index: 4; transition: opacity .45s ease, transform .45s ease; }
 .vr-door-logo { height: clamp(90px,16vh,150px); width: auto; margin: 0 auto; display: block; filter: drop-shadow(0 6px 22px rgba(0,0,0,.5)); }
 .vr-door-word { margin-top: 14px; color: var(--gold); font-size: clamp(10px,1.4vw,13px); letter-spacing: .38em; font-weight: 700; }
 /* open state */
@@ -360,7 +360,7 @@ footer { border-top: 1px solid var(--line); background: var(--bg); margin-top: 1
 body.vr-locked { overflow: hidden; }
 
 /* auth card revealed behind doors */
-.vr-auth { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; transition: opacity .6s ease .3s; }
+.vr-auth { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; transition: opacity .45s ease .2s; }
 #vr-doors.vr-open .vr-auth { opacity: 1; }
 .vr-auth-card {
   width: 100%; max-width: 380px; background: #161412;
@@ -524,7 +524,7 @@ body.vr-locked { overflow: hidden; }
     // Returning     → doors open (animation plays), then dismiss automatically.
     // Same session  → already played, skip straight in (no re-animation).
     var SESSION_KEY = 'vr_doors_played';
-    var SLIDE_MS = reduce ? 100 : 2400;   // must match .vr-door transition duration
+    var SLIDE_MS = reduce ? 100 : 950;    // must match .vr-door transition duration
 
     var began = false;
     function begin() {
@@ -553,11 +553,13 @@ body.vr-locked { overflow: hidden; }
           // New visitor: doors open to reveal the form; unlock() runs on submit.
           openDoors();
         }
-      }, reduce ? 150 : 900);
+      }, reduce ? 100 : 250);
     }
     var img = doors.querySelector('.vr-door-logo');
     if (img && img.complete) begin();
-    else if (img) { img.addEventListener('load', begin); img.addEventListener('error', begin); setTimeout(begin, 1200); }
+    // Don't let a slow-loading logo hold up the door. Start almost immediately
+    // regardless — the logo just pops in if it arrives a moment later.
+    else if (img) { img.addEventListener('load', begin); img.addEventListener('error', begin); setTimeout(begin, 300); }
     else begin();
 
     // Silently (re)write a returning customer's record so they always appear in admin,
