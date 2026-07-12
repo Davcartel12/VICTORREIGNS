@@ -1,7 +1,7 @@
-// VictorReigns Admin - Service Worker
-const CACHE_NAME = 'vr-admin-v1';
+// VictorReigns — Service Worker
+const CACHE_NAME = 'vr-cache-v2';
 
-// Only cache the admin page shell - Firebase data stays live
+// App shell only. Firebase data always stays live.
 const STATIC_ASSETS = [
   '/admin.html',
   '/manifest.json'
@@ -9,11 +9,9 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {
-        // Silently fail if some assets can't be cached
-      });
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .catch(() => {/* a missing asset shouldn't block install */})
   );
   self.skipWaiting();
 });
@@ -28,14 +26,50 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Always go network-first for Firebase requests
-  if (event.request.url.includes('firebase') || 
-      event.request.url.includes('firestore') ||
-      event.request.url.includes('googleapis')) {
-    return;
-  }
+  const req = event.request;
+
+  // Only ever handle GETs.
+  if (req.method !== 'GET') return;
+
+  let url;
+  try { url = new URL(req.url); } catch (e) { return; }
+
+  // Leave everything that isn't our own origin alone — third-party requests
+  // (Google, Firebase, CDNs, analytics) must go straight to the network.
+  if (url.origin !== self.location.origin) return;
+
+  // Never intercept Firebase / API traffic.
+  if (/firebase|firestore|googleapis|gstatic/i.test(url.href)) return;
 
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(req)
+      .then(res => {
+        // Cache good responses for offline use
+        if (res && res.ok && res.type === 'basic') {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, copy)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(async () => {
+        // Offline: serve from cache if we have it…
+        const hit = await caches.match(req);
+        if (hit) return hit;
+
+        // …for page navigations, fall back to the app shell…
+        if (req.mode === 'navigate') {
+          const shell = await caches.match('/index.html') || await caches.match('/admin.html');
+          if (shell) return shell;
+        }
+
+        // …otherwise ALWAYS return a real Response.
+        // (Returning undefined here is what caused
+        //  "Failed to convert value to 'Response'".)
+        return new Response('', {
+          status: 504,
+          statusText: 'Offline',
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      })
   );
 });
