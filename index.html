@@ -1679,6 +1679,22 @@ body.vr-locked { overflow: hidden; }
       };
 
       window.db.collection('orders').add(order).then(() => {
+        // Notify the owner. Fire-and-forget: if this fails for any reason, the
+        // customer's order is already saved and must still succeed.
+        try {
+          const payload = JSON.stringify({
+            name: order.name,
+            phone: order.phone,
+            address: order.address,
+            accountEmail: order.accountEmail,
+            items: order.items,
+            total: order.total
+          });
+          const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload };
+          fetch('/api/notify-push', opts).catch(() => {});    // push to the admin app
+          fetch('/api/notify-order', opts).catch(() => {});   // WhatsApp (if configured)
+        } catch (e) {}
+
         localStorage.removeItem(CART_KEY); updateCartBadge();
         if (summaryBox) summaryBox.innerHTML = `<h2>Order placed <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">Thank you! We've received your order and will contact you shortly to confirm delivery and payment. <a href="shop.html">Keep shopping</a>.</p>`;
         const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';

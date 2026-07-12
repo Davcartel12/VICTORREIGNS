@@ -3,20 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - VictorReigns Empire</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VR Admin</title>
     <meta name="theme-color" content="#0d0d0d">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- 'black' keeps content BELOW the notch. 'black-translucent' hides it under. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="VR Admin">
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => { });
+                navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => { });
             });
         }
     </script>
@@ -26,6 +27,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy, getDoc, setDoc }
             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage, isSupported }
+            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
         // ─── YOUR FIREBASE CONFIG ─────────────────────────────────────────────
         const firebaseConfig = {
@@ -48,6 +51,8 @@
             collection, addDoc, getDocs, deleteDoc, doc, updateDoc,
             serverTimestamp, query, orderBy, getDoc, setDoc
         };
+        // Push notifications (FCM)
+        window._msg = { app, getMessaging, getToken, onMessage, isSupported };
 
         window.dispatchEvent(new Event('firebaseReady'));
     </script>
@@ -98,6 +103,13 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             letter-spacing: -.005em;
+            /* Installed-app on iPhone: never sit under the notch or the home bar */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            background-color: var(--canvas);
+            overscroll-behavior-y: none;   /* no rubber-band bounce */
         }
         img { max-width: 100%; display: block; }
 
@@ -603,6 +615,25 @@
         .cd-review-text { color: var(--text); font-size: .88rem; line-height: 1.55; }
         .cd-review-date { color: var(--faint); font-size: .72rem; font-family: var(--mono); margin-top: .5rem; }
 
+        /* ─────────────────────────── iOS install prompt ─────────────────────────── */
+        #ios-install {
+            position: fixed; left: 12px; right: 12px;
+            bottom: calc(12px + env(safe-area-inset-bottom));
+            background: var(--panel); border: 1px solid var(--gold-line);
+            border-radius: 14px; padding: 1rem 1.1rem;
+            box-shadow: 0 16px 50px rgba(0,0,0,.55);
+            z-index: 3000; display: none;
+        }
+        #ios-install.show { display: block; animation: fade .3s ease; }
+        .iosi-head { display: flex; align-items: center; gap: .7rem; margin-bottom: .6rem; }
+        .iosi-head img { width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0; }
+        .iosi-title { font-weight: 800; color: var(--ink); font-size: .95rem; letter-spacing: -.01em; }
+        .iosi-sub { font-size: .76rem; color: var(--muted); margin-top: 1px; }
+        .iosi-steps { font-size: .84rem; color: var(--text); line-height: 1.7; margin: .5rem 0 .8rem; }
+        .iosi-steps b { color: var(--gold); }
+        .iosi-close { position: absolute; top: .55rem; right: .6rem; background: none; border: none; color: var(--faint); font-size: 1.3rem; line-height: 1; cursor: pointer; padding: .2rem .35rem; }
+        .iosi-close:hover { color: var(--ink); }
+
         @media (max-width: 860px) {
             :root { --sidebar-w: 0px; }
             /* Stack: header bar on top, content below (was side-by-side flex) */
@@ -740,6 +771,10 @@
                 </nav>
 
                 <div class="side-foot">
+                    <button class="side-link" id="notif-toggle" onclick="toggleNotifications()" title="Order notifications">
+                        <span id="notif-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 18a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                        <span class="side-link-text" id="notif-label">Notifications</span>
+                    </button>
                     <a class="side-link" href="index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 12h16M12 4c2.5 2.5 2.5 13 0 16M12 4c-2.5 2.5-2.5 13 0 16" fill="none" stroke="currentColor" stroke-width="1.6"/></svg> <span class="side-link-text">View store</span></a>
                     <button class="side-link danger" onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M14 8V5.5a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h6a1.5 1.5 0 0 0 1.5-1.5V16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 12h10m0 0l-3-3m3 3l-3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="side-link-text">Logout</span></button>
                 </div>
@@ -1036,6 +1071,24 @@
     </div>
 
     <!-- ══════════════════ TOAST ══════════════════ -->
+    <!-- ══ iOS INSTALL PROMPT ══ -->
+    <div id="ios-install">
+        <button class="iosi-close" onclick="dismissIosInstall()">&times;</button>
+        <div class="iosi-head">
+            <img src="/apple-touch-icon.png" alt="VR Admin">
+            <div>
+                <div class="iosi-title">Install VR Admin</div>
+                <div class="iosi-sub">Get order alerts on your phone</div>
+            </div>
+        </div>
+        <div class="iosi-steps">
+            1. Tap <b>Share</b> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display:inline-block;vertical-align:-.15em"><path d="M12 4v11M12 4l-3.5 3.5M12 4l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12v6a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> at the bottom of Safari<br>
+            2. Choose <b>Add to Home Screen</b><br>
+            3. Open <b>VR Admin</b> from your home screen
+        </div>
+        <button class="btn btn-primary btn-sm" style="width:100%" onclick="dismissIosInstall()">Got it</button>
+    </div>
+
     <div id="toast"></div>
 
     <!-- ══════════════════ SCRIPTS ══════════════════ -->
@@ -1079,6 +1132,8 @@
             adminDb = window._db;
             adminFb = window._fb;
         });
+        // Safety: if 'firebaseReady' already fired before this listener existed
+        if (window._db && window._fb) { adminDb = window._db; adminFb = window._fb; }
 
         /* ─── Login ─────────────────────────────────────────────── */
         document.getElementById('login-form').addEventListener('submit', e => {
@@ -1822,6 +1877,160 @@
         }
 
         /* ─── Toast ─────────────────────────────────────────────── */
+        /* ═══════════════════════════════════════════════════════════
+           PUSH NOTIFICATIONS (FCM)
+           Registers this device to receive order alerts — even when the
+           admin app is closed. Requires the app to be INSTALLED to the
+           home screen on iPhone (iOS 16.4+).
+        ═══════════════════════════════════════════════════════════ */
+
+        // VAPID key (Firebase Console → Project Settings → Cloud Messaging → Web Push certificates)
+        const VAPID_KEY = 'BOUVoepUrgKVsr2Z1DL7tVISeGicA70LeyBnCsqjm7wGe9VTkUfyo7Rxzd-1f-2tP8cyrgZuVxbwoqkCVfqHiLs';
+
+        let fcmToken = null;
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        function updateNotifButton() {
+            const label = document.getElementById('notif-label');
+            const btn = document.getElementById('notif-toggle');
+            if (!label || !btn) return;
+
+            if (!('Notification' in window)) {
+                label.textContent = 'Not supported';
+                btn.style.opacity = '.5';
+                return;
+            }
+            const perm = Notification.permission;
+            if (perm === 'granted' && fcmToken) {
+                label.textContent = 'Alerts on';
+                btn.style.color = 'var(--green)';
+            } else if (perm === 'denied') {
+                label.textContent = 'Alerts blocked';
+                btn.style.color = 'var(--red)';
+            } else {
+                label.textContent = 'Enable alerts';
+                btn.style.color = '';
+            }
+        }
+
+        async function toggleNotifications() {
+            if (!('Notification' in window)) {
+                showToast('This browser does not support notifications', 'error');
+                return;
+            }
+
+            // iPhone: push ONLY works from an installed home-screen app
+            if (isIOS() && !isStandalone()) {
+                alert(
+                    'To get order alerts on iPhone:\n\n' +
+                    '1. Tap the Share button in Safari\n' +
+                    '2. Choose "Add to Home Screen"\n' +
+                    '3. Open VR Admin from your home screen\n' +
+                    '4. Then tap "Enable alerts" again\n\n' +
+                    '(Apple only allows notifications from installed apps.)'
+                );
+                return;
+            }
+
+            if (Notification.permission === 'denied') {
+                alert('Notifications are blocked. Enable them in your browser/phone settings for this site, then try again.');
+                return;
+            }
+
+            try {
+                const perm = await Notification.requestPermission();
+                if (perm !== 'granted') {
+                    showToast('Notifications not enabled', 'error');
+                    updateNotifButton();
+                    return;
+                }
+                await registerForPush();
+            } catch (err) {
+                console.error(err);
+                showToast('Could not enable notifications', 'error');
+            }
+        }
+
+        async function registerForPush() {
+            if (!window._msg) { console.warn('Messaging SDK not ready'); return; }
+            if (VAPID_KEY === 'REPLACE_WITH_YOUR_VAPID_KEY') {
+                showToast('Push key not configured yet — see setup guide', 'error');
+                return;
+            }
+            try {
+                const supported = await window._msg.isSupported();
+                if (!supported) { showToast('Push not supported on this browser', 'error'); return; }
+
+                const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                const messaging = window._msg.getMessaging(window._msg.app);
+
+                const token = await window._msg.getToken(messaging, {
+                    vapidKey: VAPID_KEY,
+                    serviceWorkerRegistration: reg
+                });
+                if (!token) { showToast('Could not get a push token', 'error'); return; }
+
+                fcmToken = token;
+
+                // Save the token so the server knows where to send alerts
+                await adminFb.setDoc(
+                    adminFb.doc(adminDb, 'push_tokens', token.slice(0, 40)),
+                    { token, ua: navigator.userAgent, updatedAt: adminFb.serverTimestamp() },
+                    { merge: true }
+                );
+
+                // Foreground messages (app open) — show a toast + a notification
+                window._msg.onMessage(messaging, (payload) => {
+                    const n = (payload && (payload.notification || payload.data)) || {};
+                    showToast(n.title || 'New order received', 'success');
+                    try { new Notification(n.title || 'New order', { body: n.body || '', icon: '/icon-192.png' }); } catch (e) {}
+                    loadOrders();   // refresh the orders list live
+                });
+
+                showToast('Order alerts enabled', 'success');
+                updateNotifButton();
+            } catch (err) {
+                console.error('push registration failed:', err);
+                showToast('Could not enable alerts: ' + (err.message || 'error'), 'error');
+            }
+        }
+
+        /* ─── iOS install prompt ─── */
+        function dismissIosInstall() {
+            const el = document.getElementById('ios-install');
+            if (el) el.classList.remove('show');
+            try { localStorage.setItem('vr_ios_install_dismissed', '1'); } catch (e) {}
+        }
+        function maybeShowIosInstall() {
+            // Only on iPhone/iPad, only in Safari, only when NOT already installed
+            if (!isIOS() || isStandalone()) return;
+            try { if (localStorage.getItem('vr_ios_install_dismissed')) return; } catch (e) {}
+            const el = document.getElementById('ios-install');
+            if (el) setTimeout(() => el.classList.add('show'), 1400);
+        }
+
+        // The install prompt must not depend on Firebase (its 'firebaseReady'
+        // event may already have fired before this script runs).
+        function bootIosInstall() {
+            updateNotifButton();
+            maybeShowIosInstall();
+            if ('Notification' in window && Notification.permission === 'granted') {
+                setTimeout(() => registerForPush().catch(() => {}), 1200);
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(bootIosInstall, 600));
+        } else {
+            setTimeout(bootIosInstall, 600);
+        }
+
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
             t.innerHTML = msg;

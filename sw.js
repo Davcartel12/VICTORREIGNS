@@ -73,3 +73,49 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
+/* ══════════════════════════════════════════════════════════════
+   PUSH NOTIFICATIONS
+   Fires even when the admin app is closed / phone is locked.
+   ══════════════════════════════════════════════════════════════ */
+
+self.addEventListener('push', event => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'New order', body: event.data ? event.data.text() : '' };
+  }
+
+  // FCM sends the payload under `notification` OR `data` depending on how it's sent
+  const n = data.notification || data.data || data;
+
+  const title = n.title || 'New order — VictorReigns';
+  const options = {
+    body: n.body || 'You have a new order.',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: n.tag || 'vr-order',          // replaces the previous one instead of stacking
+    renotify: true,
+    requireInteraction: false,
+    vibrate: [200, 100, 200],
+    data: { url: n.url || '/admin.html' }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Tapping the notification opens (or focuses) the admin panel
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || '/admin.html';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const client of list) {
+        if (client.url.includes('admin') && 'focus' in client) return client.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(target);
+    })
+  );
+});

@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
+
+    // ─── USERS (customers, keyed by email) ──────────────────────
+    // The gate has no password/auth, so writes are open. Anyone can
+    // read (admin Customers tab) and write their record by email.
+    match /users/{emailKey} {
+      allow read, write: if true;
+    }
+
+    // ─── REVIEWS (keyed by email, one per email) ────────────────
+    // Open read (shown on site + homepage) and open write (no auth).
+    match /reviews/{emailKey} {
+      allow read, write: if true;
+    }
+
+    // ─── PUSH TOKENS (admin devices that receive order alerts) ──
+    // The admin app writes its device token here. The server reads them
+    // with admin credentials, so no public read is needed.
+    match /push_tokens/{tokenId} {
+      allow read: if false;
+      allow write: if true;
+    }
+  }
+}
