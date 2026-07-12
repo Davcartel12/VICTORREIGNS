@@ -1657,11 +1657,11 @@ body.vr-locked { overflow: hidden; }
       const items = getCart(); if (!items.length) { toast('Your cart is empty.'); return; }
       const name = $('#name', form).value.trim(), phone = $('#phone', form).value.trim(), address = $('#address', form).value.trim();
       if (!name || !phone || !address) { toast('Please fill in all fields.'); return; }
-      if (!window.db) { toast('Connection issue — please try again.'); return; }
+      // NOTE: no Firebase check here on purpose — WhatsApp must open even if
+      // the database is unreachable. The save happens afterwards, separately.
 
       const submitBtn = form.querySelector('button[type="submit"]');
-      const btnOrig = submitBtn ? submitBtn.textContent : '';
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Placing order…'; }
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Opening WhatsApp…'; }
 
       let customer = null;
       try { customer = JSON.parse(localStorage.getItem('vr_customer') || 'null'); } catch (err) {}
@@ -1674,8 +1674,7 @@ body.vr-locked { overflow: hidden; }
           category: i.category || '', color: i.color || ''    // colour the customer chose
         })),
         total: cartTotal(),
-        status: 'new',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        status: 'new'
       };
 
       // Build the WhatsApp message now (so it's ready the moment we need it)
@@ -1692,17 +1691,28 @@ body.vr-locked { overflow: hidden; }
         `*Total: ${fmt(cartTotal())}*`;
       const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`;
 
-      // Open the WhatsApp tab NOW, while we're still inside the click handler —
-      // if we wait for the save to finish, popup blockers kill it.
-      const waTab = window.open('', '_blank');
+      // ── Open WhatsApp FIRST, right here in the click handler. ──
+      // This must not depend on the database save: if Firestore is slow or
+      // fails, the customer still gets their order into WhatsApp. Opening the
+      // real URL (not a blank tab) also survives popup blockers far better.
+      const waTab = window.open(waUrl, '_blank');
+      const waBlocked = !waTab || waTab.closed || typeof waTab.closed === 'undefined';
 
-      window.db.collection('orders').add(order).then(() => {
-        // Send the customer to WhatsApp with the order pre-filled
-        if (waTab && !waTab.closed) waTab.location.href = waUrl;
-        else window.location.href = waUrl;   // popup blocked → navigate instead
+      // Clear the cart + show confirmation straight away — the order is on its way.
+      localStorage.removeItem(CART_KEY); updateCartBadge();
+      if (summaryBox) summaryBox.innerHTML = `<h2>Order ready <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">${waBlocked ? 'Tap below to send your order on WhatsApp.' : 'Your order opened in WhatsApp — just hit send to confirm it.'}<br><br><a class="btn btn-solid" href="${waUrl}" target="_blank" rel="noopener">Send on WhatsApp</a><br><br><a href="shop.html">Keep shopping</a></p>`;
+      const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
 
+      // ── Now save the order in the background (for the admin panel) ──
+      // Wrapped so a missing/failed Firebase can never affect the customer.
+      Promise.resolve().then(() => {
+        if (!window.db || !window.firebase) throw new Error('firebase-unavailable');
+        return window.db.collection('orders').add(
+          Object.assign({}, order, { createdAt: firebase.firestore.FieldValue.serverTimestamp() })
+        );
+      }).then(() => {
         // Also notify the owner directly (push + WhatsApp API, if configured).
-        // Fire-and-forget: failures here never affect the customer's order.
+        // Fire-and-forget: failures here never affect the customer.
         try {
           const payload = JSON.stringify({
             name: order.name,
@@ -1716,16 +1726,10 @@ body.vr-locked { overflow: hidden; }
           fetch('/api/notify-push', opts).catch(() => {});    // push to the admin app
           fetch('/api/notify-order', opts).catch(() => {});   // WhatsApp (if configured)
         } catch (e) {}
-
-        localStorage.removeItem(CART_KEY); updateCartBadge();
-        if (summaryBox) summaryBox.innerHTML = `<h2>Order placed <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:-0.15em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></h2><p class="grid-message">We've received your order — please send the WhatsApp message that just opened so we can confirm it. <a href="${waUrl}" target="_blank">Open WhatsApp again</a> · <a href="shop.html">Keep shopping</a>.</p>`;
-        const fc = form.closest('.checkout-form'); if (fc) fc.style.display = 'none';
       }).catch((err) => {
-        console.error(err);
-        // Order didn't save — don't leave a blank WhatsApp tab hanging around
-        try { if (waTab && !waTab.closed) waTab.close(); } catch (e) {}
-        toast('Could not place order. Please try again.');
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = btnOrig; }
+        // The save failed, but the customer has ALREADY got their order in
+        // WhatsApp — which is what matters. Just log it; don't disturb them.
+        console.error('Order did not save to the admin panel:', err);
       });
     });
   }
