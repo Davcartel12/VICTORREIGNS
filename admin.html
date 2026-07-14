@@ -702,7 +702,62 @@
             /* tables + wide blocks must not push the page sideways */
             .cust-table-wrap { max-width: 100%; }
             .rvadmin-list { grid-template-columns: 1fr; }
+
+            /* Comfortable touch targets (Apple/Google guidance: ~40-44px) */
+            .admin-tab-btn { min-height: 40px; }
+            .side-link { min-width: 40px; min-height: 40px; justify-content: center; }
+            .btn { min-height: 40px; }
+            .btn-sm { min-height: 36px; }
+            .modal-close { width: 38px; height: 38px; }
+            .rvadmin-del { width: 34px; height: 34px; }
+            .cv-clear { width: 24px; height: 24px; }
+
+            /* Prevent iOS Safari from auto-zooming the page when a field is focused
+               (it zooms whenever a focused input's font-size is under 16px) */
+            .form-group input, .form-group select, .form-group textarea,
+            .search-input, .filter-select, #home-title-toggle, .login-form input {
+                font-size: 16px;
+            }
+
+            /* Toolbar: never let items overflow / get clipped on narrow phones */
+            .admin-controls { width: 100%; }
+            .setting-chip, .search-filter, .filter-select { min-width: 0; }
+            .search-filter { flex-wrap: wrap; }
+            .search-input { flex: 1 1 100%; min-width: 0; }
+            .filter-select { flex: 1 1 auto; min-width: 0; }
+
+            /* Orders / customer rows: allow text to shrink instead of overflowing */
+            .order-head-left, .order-cust, .cust-name-cell, .cust-name,
+            .cust-email, .rvadmin-meta { min-width: 0; }
+            .order-cust-name, .order-cust-contact, .cust-name, .cust-email,
+            .rvadmin-name, .rvadmin-email {
+                overflow: hidden; text-overflow: ellipsis;
+            }
+
+            /* Customers: swap the table for a stacked card list on phone */
+            .cust-table-wrap { display: none; }
+            .cust-cards-mobile { display: flex; flex-direction: column; gap: 10px; }
         }
+        /* Customer mobile cards (built by JS, shown only ≤860px via the rule above) */
+        .cust-cards-mobile { display: none; }
+        .ccm-card {
+            display: flex; align-items: center; gap: .75rem;
+            background: var(--card); border: 1px solid var(--line);
+            border-radius: var(--radius); padding: .85rem .95rem;
+            cursor: pointer; transition: border-color .15s;
+        }
+        .ccm-card:active { border-color: var(--gold); }
+        .ccm-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--gold-soft);
+            color: var(--gold); display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: .85rem; flex-shrink: 0; }
+        .ccm-info { flex: 1; min-width: 0; }
+        .ccm-name { font-weight: 700; color: var(--ink); font-size: .9rem; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; }
+        .ccm-email { color: var(--muted); font-family: var(--mono); font-size: .76rem; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+        .ccm-meta { display: flex; align-items: center; gap: .5rem; margin-top: .35rem; flex-wrap: wrap; }
+        .ccm-meta span { font-size: .68rem; color: var(--faint); }
+        .ccm-chev { color: var(--faint); flex-shrink: 0; }
         @media (max-width: 480px) {
             .admin-header-content { padding: .6rem .8rem; gap: .5rem; }
             .admin-tab-btn { padding: .5rem .7rem; }
@@ -716,6 +771,20 @@
             .products-grid-admin { gap: 10px; }
             .product-card-admin .pc-name { font-size: .88rem; }
             .product-card-admin .pc-actions { flex-direction: column; gap: 6px; }
+
+            /* Give small phones back every spare pixel in dialogs */
+            .modal { padding: .6rem; }
+            .modal-content { border-radius: 14px; }
+            .modal-header { padding: 1rem 1.1rem; }
+            .modal-body { padding: 1.1rem; }
+            .cust-detail-body .cd-header,
+            .cust-detail-body .cd-section { padding: 1.1rem; }
+
+            .order-head, .order-body, .order-foot { padding-left: .9rem; padding-right: .9rem; }
+            .rvadmin-card { padding: 1rem; }
+            .order-total-badge { font-size: .9rem; }
+            .order-actions { width: 100%; }
+            .order-actions .btn { flex: 1; }
         }
 
     </style>
@@ -954,6 +1023,9 @@
                             <tr><td colspan="5" class="cust-loading">Loading customers…</td></tr>
                         </tbody>
                     </table>
+                </div>
+                <div id="customers-cards-mobile" class="cust-cards-mobile">
+                    <!-- phone card view, built by JS -->
                 </div>
                 <div id="no-customers" class="no-orders hidden">
                     <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></p>
@@ -1447,9 +1519,11 @@
         async function loadCustomers() {
             if (!adminDb) { showToast('Firebase not ready yet', 'error'); return; }
             const tbody = document.getElementById('customers-tbody');
+            const cards = document.getElementById('customers-cards-mobile');
             const empty = document.getElementById('no-customers');
             const wrap = document.querySelector('.cust-table-wrap');
             tbody.innerHTML = '<tr><td colspan="5" class="cust-loading">Loading customers…</td></tr>';
+            cards.innerHTML = '<div class="cust-loading">Loading customers…</div>';
             empty.classList.add('hidden');
             wrap.style.display = '';
             try {
@@ -1477,6 +1551,7 @@
 
                 if (!custUsers.length) {
                     tbody.innerHTML = '';
+                    cards.innerHTML = '';
                     wrap.style.display = 'none';
                     empty.classList.remove('hidden');
                     return;
@@ -1492,9 +1567,30 @@
                         <td><span class="cust-badge ${did ? 'yes' : 'no'}">${did ? 'Yes' : 'No'}</span></td>
                     </tr>`;
                 }).join('');
+
+                // Phone card list (same data, touch-friendly layout instead of a scrolling table)
+                cards.innerHTML = custUsers.map(u => {
+                    const oCount = ordersForEmail(u.email).length;
+                    const did = !!reviewForEmail(u.email);
+                    return `<div class="ccm-card" onclick="openCustomerDetail('${emailKeyAdmin(u.email)}')">
+                        <div class="ccm-avatar">${adminEscape(adminInitials(u.name, u.email))}</div>
+                        <div class="ccm-info">
+                            <div class="ccm-name">${adminEscape(u.name || 'Customer')}</div>
+                            <div class="ccm-email">${adminEscape(u.email || '—')}</div>
+                            <div class="ccm-meta">
+                                <span>Joined ${fmtDate(u.createdAt)}</span>
+                                <span>·</span>
+                                <span class="cust-orders-count ${oCount ? '' : 'zero'}" style="font-size:.72rem">${oCount} order${oCount === 1 ? '' : 's'}</span>
+                                <span class="cust-badge ${did ? 'yes' : 'no'}">${did ? 'Reviewed' : 'No review'}</span>
+                            </div>
+                        </div>
+                        <svg class="ccm-chev" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>`;
+                }).join('');
             } catch (err) {
                 console.error(err);
                 tbody.innerHTML = '<tr><td colspan="5" class="cust-loading">Could not load customers.</td></tr>';
+                cards.innerHTML = '<div class="cust-loading">Could not load customers.</div>';
             }
         }
 
