@@ -311,8 +311,22 @@ footer { border-top: 1px solid var(--line); background: var(--bg); margin-top: 1
 @media (max-width: 960px) {
   .shop-body { grid-template-columns: 1fr; }
   .shop-sidebar { position: static; }
-  .cat-list { flex-direction: row; flex-wrap: wrap; }
-  .cat-item { width: auto; }
+  /* One straight scrollable row of pill chips — swipe sideways to see the rest */
+  .cat-list {
+    flex-direction: row; flex-wrap: nowrap;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none; -ms-overflow-style: none;
+    margin: 0 -1.1rem; padding: .1rem 1.1rem .35rem;
+  }
+  .cat-list::-webkit-scrollbar { display: none; }
+  .cat-item {
+    width: auto; flex: 0 0 auto; white-space: nowrap;
+    scroll-snap-align: start;
+    background: var(--bg-soft); border: 1px solid var(--line);
+    border-radius: var(--pill); padding: .55rem 1rem;
+  }
+  .cat-item.active { border-color: var(--ink); }
   .cat-item .cat-count { display: none; }
   .shop-grid { grid-template-columns: repeat(2, 1fr); }
   .product-detail { grid-template-columns: 1fr; gap: 1.8rem; }
