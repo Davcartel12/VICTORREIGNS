@@ -310,7 +310,12 @@ footer { border-top: 1px solid var(--line); background: var(--bg); margin-top: 1
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 960px) {
   .shop-body { grid-template-columns: 1fr; }
-  .shop-sidebar { position: static; }
+  /* A grid/flex item's default min-width is "auto", which factors in its
+     content's unwrapped width. The nowrap chip row below would otherwise
+     force this whole column (and the page) wider than the screen — min-width:0
+     at every level here is what actually keeps it clipped to the viewport. */
+  .shop-sidebar { position: static; min-width: 0; max-width: 100%; }
+  .side-card { min-width: 0; max-width: 100%; }
   /* One straight scrollable row of pill chips — swipe sideways to see the rest */
   .cat-list {
     flex-direction: row; flex-wrap: nowrap;
@@ -318,6 +323,7 @@ footer { border-top: 1px solid var(--line); background: var(--bg); margin-top: 1
     scroll-snap-type: x proximity;
     scrollbar-width: none; -ms-overflow-style: none;
     margin: 0 -1.1rem; padding: .1rem 1.1rem .35rem;
+    max-width: calc(100% + 2.2rem);
   }
   .cat-list::-webkit-scrollbar { display: none; }
   .cat-item {
