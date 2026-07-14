@@ -638,7 +638,10 @@
             :root { --sidebar-w: 0px; }
             /* Stack: header bar on top, content below (was side-by-side flex) */
             #admin-panel { display: block; }
-            html, body { overflow-x: hidden; }   /* never allow sideways scroll */
+            /* overflow-x: clip (not hidden) — "hidden" turns html/body into scroll
+               containers, which fights the sticky header and can freeze touch-scroll
+               on Android Chrome. "clip" blocks sideways scroll without that side effect. */
+            html, body { overflow-x: clip; }
 
             .admin-header {
                 position: sticky; top: 0; left: 0; right: 0;
