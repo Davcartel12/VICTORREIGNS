@@ -1210,11 +1210,68 @@ body.vr-locked { overflow: hidden; }
     catch (e) {}
   }
 
+  /* Products come back from Firestore sorted newest-first. If several products
+     share the same name (e.g. 5 "Lipstick" entries uploaded back-to-back), their
+     createdAt timestamps land right next to each other, so they'd all clump
+     together at the top of every listing. This spreads same-name products apart
+     instead, while leaving every uniquely-named product's relative order (i.e.
+     newest-first) untouched. Feeds home/shop/reco/related — every view that
+     reads from `PRODUCTS` benefits automatically. */
+  function scatterDuplicateNames(list) {
+    const n = list.length;
+    if (n <= 2) return list.slice();
+
+    const nameKey = p => (p.name || '').trim().toLowerCase();
+    const counts = new Map();
+    list.forEach(p => { const k = nameKey(p); counts.set(k, (counts.get(k) || 0) + 1); });
+
+    const singles = [];
+    const dupBuckets = new Map();   // name -> items, in original (newest-first) order
+    list.forEach(p => {
+      const k = nameKey(p);
+      if (counts.get(k) > 1) {
+        if (!dupBuckets.has(k)) dupBuckets.set(k, []);
+        dupBuckets.get(k).push(p);
+      } else {
+        singles.push(p);
+      }
+    });
+
+    if (!dupBuckets.size) return list.slice();   // nothing duplicated — order untouched
+
+    // Round-robin the duplicate groups against each other first, so e.g. a batch
+    // of 5 lipsticks and a batch of 3 lotions don't clump with each other either.
+    const dupKeys = [...dupBuckets.keys()];
+    const extras = [];
+    for (let round = 0, more = true; more; round++) {
+      more = false;
+      for (const k of dupKeys) {
+        const arr = dupBuckets.get(k);
+        if (round < arr.length) { extras.push(arr[round]); more = true; }
+      }
+    }
+    if (!singles.length) return extras;   // edge case: every product is a duplicate
+
+    // Weave the duplicates evenly through the singles, keeping the singles'
+    // own relative (newest-first) order fully intact.
+    const result = [];
+    const gap = singles.length / extras.length;
+    let nextExtra = 0, debt = gap;
+    singles.forEach(item => {
+      result.push(item);
+      debt -= 1;
+      if (debt <= 0 && nextExtra < extras.length) { result.push(extras[nextExtra++]); debt += gap; }
+    });
+    while (nextExtra < extras.length) result.push(extras[nextExtra++]);
+    return result;
+  }
+
   function setProducts(items) {
-    const changed = !PRODUCTS || JSON.stringify(items) !== JSON.stringify(PRODUCTS);
-    PRODUCTS = items;
-    writeProductCache(items);
-    if (changed) productSubs.forEach(fn => { try { fn(items); } catch (e) {} });
+    const scattered = scatterDuplicateNames(items);
+    const changed = !PRODUCTS || JSON.stringify(scattered) !== JSON.stringify(PRODUCTS);
+    PRODUCTS = scattered;
+    writeProductCache(scattered);
+    if (changed) productSubs.forEach(fn => { try { fn(scattered); } catch (e) {} });
   }
 
   // Attach ONE realtime listener for the whole session. Keeps PRODUCTS fresh
